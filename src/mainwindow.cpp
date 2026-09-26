@@ -16,6 +16,8 @@
 #include <QSettings>
 #include <QSplitter>
 #include <QStatusBar>
+#include <QStyle>
+#include <QTabBar>
 #include <QTabWidget>
 #include <QToolBar>
 #include <QVBoxLayout>
@@ -79,6 +81,8 @@ MainWindow::MainWindow(const SshPaths &paths, QWidget *parent)
     connect(m_sidebar, &HostSidebar::currentHostChanged, this, &MainWindow::updateActions);
     connect(m_sidebar, &HostSidebar::contextMenuRequested, this, &MainWindow::showContextMenu);
     connect(m_tabs, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
+    connect(m_tabs, &QTabWidget::currentChanged, this, &MainWindow::updateTabCloseButtons);
+    connect(m_tabs->tabBar(), &QTabBar::tabMoved, this, &MainWindow::updateTabCloseButtons);
 
     restoreSettings();
     onHostsChanged();
@@ -143,6 +147,10 @@ void MainWindow::setupActions()
     m_sidebarRightAction->setCheckable(true);
     connect(m_sidebarRightAction, &QAction::toggled, this, &MainWindow::setSidebarOnRight);
 
+    m_activeTabCloseButtonAction = new QAction(i18nc("@action", "Close Button on &Active Tab Only"), this);
+    m_activeTabCloseButtonAction->setCheckable(true);
+    connect(m_activeTabCloseButtonAction, &QAction::toggled, this, &MainWindow::updateTabCloseButtons);
+
     m_nextTabAction = new QAction(QIcon::fromTheme(QStringLiteral("go-next")), i18nc("@action", "&Next Tab"), this);
     m_nextTabAction->setShortcut(QKeySequence(QStringLiteral("Ctrl+PgDown")));
     connect(m_nextTabAction, &QAction::triggered, this, [this] {
@@ -180,6 +188,7 @@ void MainWindow::setupMenusAndToolBar()
 
     QMenu *viewMenu = menuBar()->addMenu(i18nc("@title:menu", "&View"));
     viewMenu->addAction(m_sidebarRightAction);
+    viewMenu->addAction(m_activeTabCloseButtonAction);
     viewMenu->addSeparator();
     viewMenu->addAction(m_nextTabAction);
     viewMenu->addAction(m_previousTabAction);
@@ -266,6 +275,7 @@ void MainWindow::connectToHost(const SshHost &host)
     const int index = m_tabs->addTab(tab, HostTreeModel::colorIcon(host.color()), title);
     m_tabs->setTabToolTip(index, host.optionValue(u"HostName").isEmpty() ? alias : host.optionValue(u"HostName"));
     m_tabs->setCurrentIndex(index);
+    updateTabCloseButtons();
     tab->focusTerminal();
 }
 
@@ -304,6 +314,19 @@ void MainWindow::closeTab(int index)
     }
 }
 
+// Either every tab or only the visible one shows a close button (View menu).
+void MainWindow::updateTabCloseButtons()
+{
+    QTabBar *tabBar = m_tabs->tabBar();
+    const bool activeOnly = m_activeTabCloseButtonAction->isChecked();
+    const auto side = static_cast<QTabBar::ButtonPosition>(tabBar->style()->styleHint(QStyle::SH_TabBar_CloseButtonPosition, nullptr, tabBar));
+    for (int i = 0; i < tabBar->count(); ++i) {
+        if (QWidget *button = tabBar->tabButton(i, side)) {
+            button->setVisible(!activeOnly || i == tabBar->currentIndex());
+        }
+    }
+}
+
 void MainWindow::onSessionFinished(TerminalTab *tab)
 {
     const int index = m_tabs->indexOf(tab);
@@ -329,6 +352,7 @@ void MainWindow::restoreSettings()
     m_splitter->setStretchFactor(1, 1);
     m_splitter->setSizes({260, 900});
     m_sidebarRightAction->setChecked(settings.value(QStringLiteral("sidebar/onRight"), false).toBool());
+    m_activeTabCloseButtonAction->setChecked(settings.value(QStringLiteral("tabs/closeButtonOnActiveTabOnly"), false).toBool());
     restoreGeometry(settings.value(QStringLiteral("window/geometry")).toByteArray());
     restoreState(settings.value(QStringLiteral("window/state")).toByteArray());
     const QByteArray splitterState = settings.value(QStringLiteral("window/splitter")).toByteArray();
@@ -344,6 +368,7 @@ void MainWindow::saveSettings() const
 {
     QSettings settings = appSettings();
     settings.setValue(QStringLiteral("sidebar/onRight"), m_sidebarRightAction->isChecked());
+    settings.setValue(QStringLiteral("tabs/closeButtonOnActiveTabOnly"), m_activeTabCloseButtonAction->isChecked());
     settings.setValue(QStringLiteral("window/geometry"), saveGeometry());
     settings.setValue(QStringLiteral("window/state"), saveState());
     settings.setValue(QStringLiteral("window/splitter"), m_splitter->saveState());

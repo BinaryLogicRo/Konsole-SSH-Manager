@@ -37,6 +37,7 @@ private:
 
     void setSidebarOnRight(bool onRight);
     void closeTab(int index);
+    void updateTabCloseButtons();
     void onSessionFinished(TerminalTab *tab);
     void showAbout();
     void restoreSettings();
@@ -57,6 +58,7 @@ private:
     QAction *m_importAction = nullptr;
     QAction *m_effectiveAction = nullptr;
     QAction *m_sidebarRightAction = nullptr;
+    QAction *m_activeTabCloseButtonAction = nullptr;
     QAction *m_nextTabAction = nullptr;
     QAction *m_previousTabAction = nullptr;
     QAction *m_quitAction = nullptr;
