@@ -19,8 +19,8 @@ target_link_libraries(konsolesshmanager_core PUBLIC Qt${QT_MAJOR_VERSION}::Core 
 add_executable(konsole-ssh-session sshsessionmain.cpp)
 target_link_libraries(konsole-ssh-session PRIVATE konsolesshmanager_core)
 
-add_executable(konsole-ssh-manager
-    main.cpp
+# The app's UI, shared by the app and the optional README screenshot tool (tools/screenshot).
+add_library(konsolesshmanager_ui STATIC
     mainwindow.cpp
     hostsidebar.cpp
     hostoperations.cpp
@@ -28,16 +28,21 @@ add_executable(konsole-ssh-manager
     models/hosttreemodel.cpp
     dialogs/hosteditdialog.cpp
     dialogs/effectivesettingsdialog.cpp
-    resources.qrc
 )
-target_compile_definitions(konsole-ssh-manager PRIVATE KSSHM_VERSION_STRING="${PROJECT_VERSION}")
-target_link_libraries(konsole-ssh-manager PRIVATE
+target_link_libraries(konsolesshmanager_ui PUBLIC
     konsolesshmanager_core
     Qt${QT_MAJOR_VERSION}::Widgets
     KF${KF_MAJOR_VERSION}::Parts
     KF${KF_MAJOR_VERSION}::CoreAddons
     KF${KF_MAJOR_VERSION}::I18n
 )
+
+add_executable(konsole-ssh-manager
+    main.cpp
+    resources.qrc
+)
+target_compile_definitions(konsole-ssh-manager PRIVATE KSSHM_VERSION_STRING="${PROJECT_VERSION}")
+target_link_libraries(konsole-ssh-manager PRIVATE konsolesshmanager_ui)
 # The app starts the helper from its own directory, so build it along with the app.
 add_dependencies(konsole-ssh-manager konsole-ssh-session)
 

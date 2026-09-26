@@ -38,7 +38,7 @@ DEPS_12      := qtbase5-dev libkf5parts-dev libkf5coreaddons-dev libkf5i18n-dev
 DEPS_13      := qt6-base-dev libkf6parts-dev libkf6coreaddons-dev libkf6i18n-dev
 
 .DEFAULT_GOAL := build
-.PHONY: help deps configure build test run install uninstall refresh-menu format clean distclean rebuild
+.PHONY: help deps configure build test run install uninstall refresh-menu screenshot format clean distclean rebuild
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  %-10s %s\n", $$1, $$2}'
@@ -84,6 +84,11 @@ refresh-menu:
 	@if [ "$(REFRESH_MENU)" = 1 ] && [ -n "$(MENU_CACHE_TOOL)" ]; then $(MENU_CACHE_TOOL) >/dev/null 2>&1 || true; fi
 	@if [ "$(REFRESH_MENU)" = 1 ] && command -v dbus-send >/dev/null; then \
 		dbus-send --session --type=signal /KIconLoader org.kde.KIconLoader.iconChanged int32:0 >/dev/null 2>&1 || true; fi
+
+screenshot: ## Regenerate docs/images/screenshot.png (app rendered off-screen with demo hosts only)
+	cmake -S . -B $(BUILD_DIR) $(CMAKE_ARGS) -DKSSHM_BUILD_SCREENSHOT_TOOL=ON
+	cmake --build $(BUILD_DIR) -j$(JOBS) --target konsole-ssh-manager-screenshot
+	./$(BUILD_DIR)/bin/konsole-ssh-manager-screenshot tools/screenshot/demo-ssh $(BUILD_DIR)/screenshot-home docs/images/screenshot.png
 
 format: $(BUILD_DIR)/CMakeCache.txt ## Format sources with clang-format (KDE style)
 	cmake --build $(BUILD_DIR) --target clang-format

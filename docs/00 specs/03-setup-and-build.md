@@ -32,6 +32,7 @@ The app is always built from source. During development it runs directly from th
 
 - AI agents **are allowed** to configure and build the app (`cmake -B build ...`, `cmake --build build ...`), run the formatter, and run the test suite (`ctest`).
 - AI agents **are not allowed** to run the app itself (`./build/bin/konsole-ssh-manager` or any other way of launching it). Running the app and checking it by hand is left to the user.
+- AI agents **are not allowed** to run `make screenshot` unless the user explicitly asks for a new screenshot. Screenshots must only ever show fictional demo hosts, never real SSH configuration.
 - AI agents **are not allowed** to run `make install` or `make uninstall` for the real home directory, because they write outside the project. See [Installation](15-installation.md) for how to check the install rules safely.
 
 Format code before committing:

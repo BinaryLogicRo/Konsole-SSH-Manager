@@ -1,0 +1,34 @@
+# Demo SSH configuration used only to render the README screenshot.
+# Every name and address is fictional (RFC 2606 domains, RFC 5737 addresses).
+Include lab.conf
+
+Host *
+    ServerAliveInterval 60
+    AddKeysToAgent yes
+
+Host bastion
+    HostName bastion.example.com
+    User deploy
+    IdentityFile ~/.ssh/id_ed25519
+
+Host web-01
+    HostName 192.0.2.21
+    User deploy
+    ProxyJump bastion
+
+Host web-02
+    HostName 192.0.2.22
+    User deploy
+    ProxyJump bastion
+
+Host db-primary
+    HostName 192.0.2.31
+    User postgres
+    ProxyJump bastion
+
+Host staging
+    HostName staging.example.org
+    User alice
+
+Host *.internal.example.com
+    ProxyJump bastion

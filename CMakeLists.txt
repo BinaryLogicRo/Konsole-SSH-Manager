@@ -59,6 +59,13 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
 
+# Generator for the README screenshot (docs/images/screenshot.png). Off by default;
+# `make screenshot` turns it on. Never installed.
+option(KSSHM_BUILD_SCREENSHOT_TOOL "Build the README screenshot generator" OFF)
+if(KSSHM_BUILD_SCREENSHOT_TOOL)
+    add_subdirectory(tools/screenshot)
+endif()
+
 # Desktop entry for the application menu. It points at the installed binary
 # (CMAKE_INSTALL_PREFIX, ~/.local via `make install`), so the menu keeps working
 # independently of the build directory. See "docs/00 specs/15-installation.md".
@@ -82,6 +89,7 @@ file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/tools/*.cpp
 )
 kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
 
