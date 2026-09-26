@@ -24,11 +24,11 @@ make deps     # install build dependencies for your Debian release (sudo apt)
 make build    # configure and build into ./build
 make test     # run the test suite
 make run      # start the app from the build directory
+make install  # install for your user: ~/.local/bin + application menu entry
+make uninstall # remove the installed files for your user
 ```
 
-To add the app to your application menu, see [Installation](docs/00%20specs/15-installation.md).
-
-`make help` lists all targets. By default CMake picks Qt 6 when Qt 6 and KF6 are available and falls back to Qt 5. To force a version, use `make rebuild QT_MAJOR_VERSION=5` (or `6`). The app is always run from the build directory; there is no install step or package.
+`make help` lists all targets. By default CMake picks Qt 6 when Qt 6 and KF6 are available and falls back to Qt 5. To force a version, use `make rebuild QT_MAJOR_VERSION=5` (or `6`). There is no `.deb` package; the install is per-user and needs no root access.
 
 ## Contributing
 

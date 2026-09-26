@@ -59,11 +59,11 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
 
-# Desktop entry for the application menu, generated into the build directory with
-# the absolute path of the built binary (the app is run from the build directory).
-# See "docs/00 specs/15-installation.md" for how to add it to the menu.
+# Desktop entry for the application menu. It points at the installed binary
+# (CMAKE_INSTALL_PREFIX, ~/.local via `make install`), so the menu keeps working
+# independently of the build directory. See "docs/00 specs/15-installation.md".
 set(KSSHM_DESKTOP_ID "ro.binarylogic.konsole-ssh-manager")
-set(KSSHM_APP_PATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/konsole-ssh-manager")
+set(KSSHM_APP_PATH "${KDE_INSTALL_FULL_BINDIR}/konsole-ssh-manager")
 # Desktop Entry Exec quoting: backslash, double quote, backtick and dollar are
 # escaped inside the quoted argument, and '%' is doubled.
 string(REPLACE "\\" "\\\\\\\\" KSSHM_EXEC_ESCAPED "${KSSHM_APP_PATH}")
@@ -73,6 +73,7 @@ string(REPLACE "$" "\\\\$" KSSHM_EXEC_ESCAPED "${KSSHM_EXEC_ESCAPED}")
 string(REPLACE "%" "%%" KSSHM_EXEC_ESCAPED "${KSSHM_EXEC_ESCAPED}")
 set(KSSHM_DESKTOP_EXEC "\"${KSSHM_EXEC_ESCAPED}\"")
 configure_file(data/${KSSHM_DESKTOP_ID}.desktop.in ${CMAKE_BINARY_DIR}/${KSSHM_DESKTOP_ID}.desktop @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/${KSSHM_DESKTOP_ID}.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 
 file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp

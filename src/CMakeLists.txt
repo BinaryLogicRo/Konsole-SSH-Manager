@@ -39,3 +39,6 @@ target_link_libraries(konsole-ssh-manager PRIVATE
 )
 # The app starts the helper from its own directory, so build it along with the app.
 add_dependencies(konsole-ssh-manager konsole-ssh-session)
+
+# The app looks for the helper in its own directory, so both go to the same place.
+install(TARGETS konsole-ssh-manager konsole-ssh-session RUNTIME DESTINATION ${KDE_INSTALL_BINDIR})

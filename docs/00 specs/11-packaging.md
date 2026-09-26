@@ -1,8 +1,8 @@
 ## Packaging
 
-No `.deb` (or any other) packages are created. The app is built from source and run directly from the build directory (`./build/bin/konsole-ssh-manager`); see [Setup and build](03-setup-and-build.md). Don't add packaging files or packaging targets.
+No `.deb` (or any other) packages are created. The app is built from source; see [Setup and build](03-setup-and-build.md). Don't add packaging files or packaging targets.
 
-The one exception is the desktop entry template `data/ro.binarylogic.konsole-ssh-manager.desktop.in`. The build generates a menu entry from it that points at the binary in the build directory; there is still no install step. See [Installation](15-installation.md).
+The only exceptions are the per-user install: `make install` / `make uninstall` (backed by CMake `install()` rules) copy the executables to `~/.local/bin` and the menu entry, generated from the desktop entry template `data/ro.binarylogic.konsole-ssh-manager.desktop.in`, to `~/.local/share/applications`. See [Installation](15-installation.md).
 
 At runtime the app needs `konsole` and `openssh-client` installed.
 
