@@ -1,7 +1,10 @@
 #include "terminaltab.h"
 #include "compat.h"
 #include "logging.h"
+#include "sshsession.h"
 
+#include <QCoreApplication>
+#include <QFileInfo>
 #include <QVBoxLayout>
 
 #include <KLocalizedString>
@@ -50,6 +53,12 @@ void TerminalTab::focusTerminal()
 
 bool TerminalTab::loadPart(QString *errorMessage)
 {
+    const QString helper = QCoreApplication::applicationDirPath() + QLatin1Char('/') + SshSession::helperName();
+    if (!QFileInfo(helper).isExecutable()) {
+        *errorMessage = i18n("The session helper %1 is missing. It is built together with the app; please rebuild.", helper);
+        return false;
+    }
+
     QString lastError;
     const QStringList pluginIds{Compat::konsolePartPluginId(), Compat::konsolePartFallbackPluginId()};
     for (const QString &pluginId : pluginIds) {
@@ -82,8 +91,9 @@ bool TerminalTab::loadPart(QString *errorMessage)
     setFocusProxy(m_part->widget());
     connect(m_part, &QObject::destroyed, this, &TerminalTab::onPartDestroyed);
 
-    // The alias is the only argument: no shell, no extra options.
-    terminal->startProgram(QStringLiteral("ssh"), {QStringLiteral("ssh"), m_alias});
+    // The helper runs `ssh <alias>` (no shell, no extra options) and keeps the
+    // terminal open on failure so the user can read ssh's error.
+    terminal->startProgram(helper, {SshSession::helperName(), m_alias});
     qCDebug(KSSHM_TERMINAL) << "Started ssh session for" << m_alias;
     return true;
 }

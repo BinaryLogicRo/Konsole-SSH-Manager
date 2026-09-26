@@ -3,7 +3,11 @@ ecm_add_tests(
     tst_sshconfigparser.cpp
     tst_sshconfigwriter.cpp
     tst_sshconfigloader.cpp
+    tst_sshsession.cpp
     LINK_LIBRARIES konsolesshmanager_core Qt${QT_MAJOR_VERSION}::Test
 )
 
 target_compile_definitions(tst_sshconfigparser PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
+# End-to-end tests of the helper binary, run against a fake ssh placed first in PATH.
+target_compile_definitions(tst_sshsession PRIVATE SSH_SESSION_HELPER="$<TARGET_FILE:konsole-ssh-session>")
+add_dependencies(tst_sshsession konsole-ssh-session)
