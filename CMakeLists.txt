@@ -74,6 +74,8 @@ string(REPLACE "%" "%%" KSSHM_EXEC_ESCAPED "${KSSHM_EXEC_ESCAPED}")
 set(KSSHM_DESKTOP_EXEC "\"${KSSHM_EXEC_ESCAPED}\"")
 configure_file(data/${KSSHM_DESKTOP_ID}.desktop.in ${CMAKE_BINARY_DIR}/${KSSHM_DESKTOP_ID}.desktop @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/${KSSHM_DESKTOP_ID}.desktop DESTINATION ${KDE_INSTALL_APPDIR})
+# App icon (menu entry and window). Named after the desktop file ID, as the icon theme spec expects.
+install(FILES data/icons/${KSSHM_DESKTOP_ID}.svg DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps)
 
 file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp

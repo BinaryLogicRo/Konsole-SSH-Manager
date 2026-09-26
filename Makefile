@@ -6,7 +6,7 @@
 #   QT_MAJOR_VERSION  5 or 6; empty lets CMake auto-detect (default: empty)
 #   JOBS              parallel build jobs                  (default: nproc)
 #   PREFIX            per-user install prefix              (default: ~/.local)
-#   REFRESH_MENU      1 = refresh Plasma's menu cache after install/uninstall (default: 1)
+#   REFRESH_MENU      1 = make running Plasma pick up menu/icon changes after install/uninstall (default: 1)
 #
 # Switching QT_MAJOR_VERSION needs a fresh build directory: use `make rebuild`
 # or a different BUILD_DIR (e.g. BUILD_DIR=build-qt6).
@@ -27,7 +27,8 @@ endif
 
 DESKTOP_ID := ro.binarylogic.konsole-ssh-manager
 INSTALLED   := $(PREFIX)/bin/konsole-ssh-manager $(PREFIX)/bin/konsole-ssh-session \
-               $(PREFIX)/share/applications/$(DESKTOP_ID).desktop
+               $(PREFIX)/share/applications/$(DESKTOP_ID).desktop \
+               $(PREFIX)/share/icons/hicolor/scalable/apps/$(DESKTOP_ID).svg
 # kbuildsycoca6 on Plasma 6 (Debian 13), kbuildsycoca5 on Plasma 5 (Debian 12).
 MENU_CACHE_TOOL := $(firstword $(foreach tool,kbuildsycoca6 kbuildsycoca5,$(shell command -v $(tool) 2>/dev/null)))
 
@@ -66,7 +67,7 @@ test: build ## Build and run the test suite
 run: build ## Build and start the app from the build directory
 	./$(APP)
 
-install: ## Build, then install for the current user (executables to PREFIX/bin, menu entry)
+install: ## Build, then install for the current user (executables to PREFIX/bin, menu entry, icon)
 	cmake -S . -B $(BUILD_DIR) $(CMAKE_ARGS)
 	cmake --build $(BUILD_DIR) -j$(JOBS)
 	cmake --install $(BUILD_DIR)
@@ -76,8 +77,13 @@ uninstall: ## Remove what `make install` installed (keeps settings, backups and 
 	rm -f $(INSTALLED)
 	@$(MAKE) --no-print-directory refresh-menu
 
+# Rebuilds the menu cache, then tells running KDE programs (Plasma, KWin) to reload
+# their icon themes: they only scan icon folders at startup, so a newly created
+# ~/.local/share/icons/hicolor/scalable/apps would otherwise stay unseen until re-login.
 refresh-menu:
 	@if [ "$(REFRESH_MENU)" = 1 ] && [ -n "$(MENU_CACHE_TOOL)" ]; then $(MENU_CACHE_TOOL) >/dev/null 2>&1 || true; fi
+	@if [ "$(REFRESH_MENU)" = 1 ] && command -v dbus-send >/dev/null; then \
+		dbus-send --session --type=signal /KIconLoader org.kde.KIconLoader.iconChanged int32:0 >/dev/null 2>&1 || true; fi
 
 format: $(BUILD_DIR)/CMakeCache.txt ## Format sources with clang-format (KDE style)
 	cmake --build $(BUILD_DIR) --target clang-format

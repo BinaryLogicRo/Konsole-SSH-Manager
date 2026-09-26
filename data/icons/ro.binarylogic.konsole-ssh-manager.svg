@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <title>Konsole SSH Manager</title>
+  <defs>
+    <linearGradient id="body" x1="0" y1="8" x2="0" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3b4045"/>
+      <stop offset="1" stop-color="#232629"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="0" y1="33" x2="0" y2="59" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2ecc71"/>
+      <stop offset="1" stop-color="#1e9e57"/>
+    </linearGradient>
+    <clipPath id="window">
+      <rect x="4" y="8" width="56" height="48" rx="6"/>
+    </clipPath>
+  </defs>
+
+  <!-- terminal window -->
+  <rect x="4" y="8" width="56" height="48" rx="6" fill="url(#body)"/>
+  <rect x="4" y="8" width="56" height="10" fill="#3daee9" clip-path="url(#window)"/>
+  <!-- faint outline so the dark body stays visible on dark panels -->
+  <rect x="4.5" y="8.5" width="55" height="47" rx="5.5" fill="none" stroke="#fcfcfc" stroke-opacity="0.22"/>
+  <circle cx="11" cy="13" r="1.7" fill="#fcfcfc" fill-opacity="0.9"/>
+  <circle cx="16.5" cy="13" r="1.7" fill="#fcfcfc" fill-opacity="0.9"/>
+  <circle cx="22" cy="13" r="1.7" fill="#fcfcfc" fill-opacity="0.9"/>
+
+  <!-- prompt: >_ -->
+  <polyline points="11,26 19,32 11,38" fill="none" stroke="#3daee9" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="22" y="35.5" width="11" height="3.4" rx="1.2" fill="#eff0f1"/>
+
+  <!-- badge: SSH hosts (server stack) -->
+  <circle cx="47" cy="46" r="13" fill="url(#badge)" stroke="#fcfcfc" stroke-width="2.5"/>
+  <rect x="40" y="39.2" width="14" height="5.6" rx="1.4" fill="#fcfcfc"/>
+  <rect x="40" y="47.2" width="14" height="5.6" rx="1.4" fill="#fcfcfc"/>
+  <circle cx="43.4" cy="42" r="1.2" fill="#1e9e57"/>
+  <circle cx="43.4" cy="50" r="1.2" fill="#1e9e57"/>
+</svg>

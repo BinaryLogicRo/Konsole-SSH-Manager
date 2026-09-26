@@ -28,6 +28,7 @@ add_executable(konsole-ssh-manager
     models/hosttreemodel.cpp
     dialogs/hosteditdialog.cpp
     dialogs/effectivesettingsdialog.cpp
+    resources.qrc
 )
 target_compile_definitions(konsole-ssh-manager PRIVATE KSSHM_VERSION_STRING="${PROJECT_VERSION}")
 target_link_libraries(konsole-ssh-manager PRIVATE

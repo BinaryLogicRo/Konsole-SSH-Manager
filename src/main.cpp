@@ -28,7 +28,9 @@ int main(int argc, char **argv)
     // (e.g. the Wayland taskbar) shows this window with the menu entry's name and icon.
     about.setDesktopFileName(QStringLiteral("ro.binarylogic.konsole-ssh-manager"));
     KAboutData::setApplicationData(about);
-    QApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("utilities-terminal")));
+    // The installed icon (hicolor theme) wins; the embedded copy covers running from the build directory.
+    QApplication::setWindowIcon(
+        QIcon::fromTheme(QStringLiteral("ro.binarylogic.konsole-ssh-manager"), QIcon(QStringLiteral(":/icons/konsole-ssh-manager.svg"))));
 
     QCommandLineParser parser;
     about.setupCommandLine(&parser);
