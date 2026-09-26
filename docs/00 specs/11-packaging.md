@@ -1,17 +1,14 @@
 ## Packaging
 
-Build a separate `.deb` for each release; one binary package can't serve both, because the Qt/KF libraries differ.
+No `.deb` (or any other) packages are created. The app is built from source and run directly from the build directory (`./build/bin/konsole-ssh-manager`); see [Setup and build](03-setup-and-build.md). Don't add packaging files or packaging targets.
 
-| Release | Package version | Runtime dependencies |
-|---|---|---|
-| Debian 12 | `X.Y.Z~deb12` | `konsole`, `openssh-client`, KF5 libraries |
-| Debian 13 | `X.Y.Z~deb13` | `konsole`, `openssh-client`, KF6 libraries |
+At runtime the app needs `konsole` and `openssh-client` installed.
 
-Install a `.desktop` file and an AppStream metainfo file. Their contents are shared between releases.
+If `.deb` packaging is ever introduced, each Debian release needs its own package, because the Qt/KF libraries differ.
 
 ---
 
 **Related specs:**
 
+- [Setup and build](03-setup-and-build.md)
 - [Supported platforms and tech stack](02-platforms-and-tech-stack.md)
-- [Commits and pull requests](13-commits-and-pull-requests.md)

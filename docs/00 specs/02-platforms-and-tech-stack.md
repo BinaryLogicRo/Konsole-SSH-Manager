@@ -18,6 +18,7 @@ Linux only. No Windows or macOS code paths.
 - Qt 5.15 or Qt 6 (Widgets, Test)
 - KDE Frameworks 5 or 6: KParts, KCoreAddons, KI18n
 - Runtime dependency: `konsole` (provides the `konsolepart` plugin)
+- Any new dependency must come from a trustworthy, popular source; see [Security](09-security.md).
 
 ---
 
@@ -27,3 +28,4 @@ Linux only. No Windows or macOS code paths.
 - [Setup and build](03-setup-and-build.md)
 - [Version handling](04-version-handling.md)
 - [Packaging](11-packaging.md)
+- [Security](09-security.md)
