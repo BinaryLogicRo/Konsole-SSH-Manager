@@ -176,6 +176,17 @@ void MainWindow::setupActions()
 
 void MainWindow::setupMenusAndToolBar()
 {
+    // Visible by default; its visibility and position are kept by saveState()/restoreState().
+    QToolBar *toolBar = addToolBar(i18nc("@title:window", "Main Toolbar"));
+    toolBar->setObjectName(QStringLiteral("mainToolBar"));
+    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    for (QAction *action : {m_connectAction, m_addAction, m_editAction, m_deleteAction}) {
+        toolBar->addAction(action);
+    }
+    // Stays in sync with the toolbar, so a hidden toolbar can always be brought back.
+    QAction *toolBarAction = toolBar->toggleViewAction();
+    toolBarAction->setText(i18nc("@action", "Show Main &Toolbar"));
+
     QMenu *fileMenu = menuBar()->addMenu(i18nc("@title:menu", "&File"));
     fileMenu->addAction(m_addAction);
     fileMenu->addSeparator();
@@ -187,6 +198,7 @@ void MainWindow::setupMenusAndToolBar()
     }
 
     QMenu *viewMenu = menuBar()->addMenu(i18nc("@title:menu", "&View"));
+    viewMenu->addAction(toolBarAction);
     viewMenu->addAction(m_sidebarRightAction);
     viewMenu->addAction(m_activeTabCloseButtonAction);
     viewMenu->addSeparator();
@@ -195,13 +207,6 @@ void MainWindow::setupMenusAndToolBar()
 
     QMenu *helpMenu = menuBar()->addMenu(i18nc("@title:menu", "&Help"));
     helpMenu->addAction(m_aboutAction);
-
-    QToolBar *toolBar = addToolBar(i18nc("@title:window", "Main Toolbar"));
-    toolBar->setObjectName(QStringLiteral("mainToolBar"));
-    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    for (QAction *action : {m_connectAction, m_addAction, m_editAction, m_deleteAction}) {
-        toolBar->addAction(action);
-    }
 }
 
 void MainWindow::updateActions()
