@@ -6,6 +6,8 @@ Guidance for AI coding agents working on **konsole-ssh-manager**.
 
 AI agents must **not** run any command that can alter operating-system files. They may modify only files within this project and the SSH configuration file managed by the app.
 
+## Additional rules
+
 AI agents must **never use GitHub Actions**, including triggering, enabling, configuring, or otherwise interacting with GitHub Actions workflows.
 
 ## Specs: MUST read before any work
