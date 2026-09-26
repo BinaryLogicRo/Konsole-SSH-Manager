@@ -26,6 +26,8 @@ make test     # run the test suite
 make run      # start the app from the build directory
 ```
 
+To add the app to your application menu, see [Installation](docs/00%20specs/15-installation.md).
+
 `make help` lists all targets. By default CMake picks Qt 6 when Qt 6 and KF6 are available and falls back to Qt 5. To force a version, use `make rebuild QT_MAJOR_VERSION=5` (or `6`). The app is always run from the build directory; there is no install step or package.
 
 ## Contributing

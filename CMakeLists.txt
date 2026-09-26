@@ -59,6 +59,21 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
 
+# Desktop entry for the application menu, generated into the build directory with
+# the absolute path of the built binary (the app is run from the build directory).
+# See "docs/00 specs/15-installation.md" for how to add it to the menu.
+set(KSSHM_DESKTOP_ID "ro.binarylogic.konsole-ssh-manager")
+set(KSSHM_APP_PATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/konsole-ssh-manager")
+# Desktop Entry Exec quoting: backslash, double quote, backtick and dollar are
+# escaped inside the quoted argument, and '%' is doubled.
+string(REPLACE "\\" "\\\\\\\\" KSSHM_EXEC_ESCAPED "${KSSHM_APP_PATH}")
+string(REPLACE "\"" "\\\\\"" KSSHM_EXEC_ESCAPED "${KSSHM_EXEC_ESCAPED}")
+string(REPLACE "`" "\\\\`" KSSHM_EXEC_ESCAPED "${KSSHM_EXEC_ESCAPED}")
+string(REPLACE "$" "\\\\$" KSSHM_EXEC_ESCAPED "${KSSHM_EXEC_ESCAPED}")
+string(REPLACE "%" "%%" KSSHM_EXEC_ESCAPED "${KSSHM_EXEC_ESCAPED}")
+set(KSSHM_DESKTOP_EXEC "\"${KSSHM_EXEC_ESCAPED}\"")
+configure_file(data/${KSSHM_DESKTOP_ID}.desktop.in ${CMAKE_BINARY_DIR}/${KSSHM_DESKTOP_ID}.desktop @ONLY)
+
 file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h

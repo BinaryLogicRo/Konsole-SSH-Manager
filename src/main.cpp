@@ -24,6 +24,9 @@ int main(int argc, char **argv)
                      QStringLiteral(KSSHM_VERSION_STRING),
                      i18n("Manage SSH hosts and open them in embedded Konsole terminals"),
                      KAboutLicense::Unknown);
+    // Must match data/ro.binarylogic.konsole-ssh-manager.desktop.in so the desktop
+    // (e.g. the Wayland taskbar) shows this window with the menu entry's name and icon.
+    about.setDesktopFileName(QStringLiteral("ro.binarylogic.konsole-ssh-manager"));
     KAboutData::setApplicationData(about);
     QApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("utilities-terminal")));
 

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Konsole SSH Manager
+GenericName=SSH Connection Manager
+Comment=Manage SSH hosts and open them in embedded Konsole terminals
+Exec=@KSSHM_DESKTOP_EXEC@
+Icon=utilities-terminal
+Terminal=false
+Categories=Qt;KDE;Network;RemoteAccess;
+Keywords=ssh;terminal;konsole;remote;server;
+StartupNotify=true
+StartupWMClass=konsole-ssh-manager
