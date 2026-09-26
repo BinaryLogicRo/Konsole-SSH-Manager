@@ -2,6 +2,10 @@
 
 Guidance for AI coding agents working on **konsole-ssh-manager**.
 
+## Filesystem safety
+
+AI agents must **not** run any command that can alter operating-system files. They may modify only files within this project and, when required by the app's specified behavior, the single SSH configuration file managed by the app: `~/.ssh/config.d/konsole-ssh-manager.conf`.
+
 ## Specs: MUST read before any work
 
 The project specs live in [`docs/00 specs/`](docs/00%20specs/).
