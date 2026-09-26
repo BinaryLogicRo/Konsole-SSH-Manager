@@ -34,6 +34,10 @@ make uninstall # remove the installed files for your user
 
 `make help` lists all targets. By default CMake picks Qt 6 when Qt 6 and KF6 are available and falls back to Qt 5. To force a version, use `make rebuild QT_MAJOR_VERSION=5` (or `6`). There is no `.deb` package; the install is per-user and needs no root access.
 
+## TODO
+
+- [ ] Refactor all the documentation to match the latest app behavior and features
+
 ## Contributing
 
 Read [AGENTS.md](AGENTS.md) and the specs in [`docs/00 specs/`](docs/00%20specs/) before making changes. Changes must build and pass `make test` on both Debian 12 and Debian 13, and code is formatted with `make format`.
