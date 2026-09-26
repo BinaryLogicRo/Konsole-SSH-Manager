@@ -6,6 +6,8 @@ A KDE Plasma desktop app that manages SSH host profiles and opens them as embedd
 
 *The screenshot shows fictional demo hosts only.*
 
+## Features
+
 - Reads your `~/.ssh/config` (including `Include`d files) and shows those hosts read-only. You can import them.
 - Hosts you create live in their own file, `~/.ssh/config.d/konsole-ssh-manager.conf`. Your handwritten config is never rewritten. The only change the app will ever make to `~/.ssh/config` is adding `Include config.d/*` at the top, and only after you confirm.
 - Edits are lossless: comments, formatting and unknown options are preserved. Files are written atomically with `0600` permissions, and one backup is made per session in `~/.local/share/konsole-ssh-manager/backups/`.
