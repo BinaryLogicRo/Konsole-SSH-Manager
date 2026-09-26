@@ -1,0 +1,2 @@
+# Fixtures must stay byte-exact (CRLF, missing final newline, invalid UTF-8).
+tests/data/** -text -diff
