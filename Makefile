@@ -6,6 +6,7 @@
 #   QT_MAJOR_VERSION  5 or 6; empty lets CMake auto-detect (default: empty)
 #   JOBS              parallel build jobs                  (default: nproc)
 #   PREFIX            per-user install prefix              (default: ~/.local)
+#   SCALE             social preview size multiplier       (default: 1, i.e. 640x320)
 #   REFRESH_MENU      1 = make running Plasma pick up menu/icon changes after install/uninstall (default: 1)
 #
 # Switching QT_MAJOR_VERSION needs a fresh build directory: use `make rebuild`
@@ -17,6 +18,7 @@ QT_MAJOR_VERSION ?=
 JOBS             ?= $(shell nproc 2>/dev/null || echo 2)
 PREFIX           ?= $(HOME)/.local
 REFRESH_MENU     ?= 1
+SCALE            ?= 1
 
 APP := $(BUILD_DIR)/bin/konsole-ssh-manager
 
@@ -38,10 +40,10 @@ DEPS_12      := qtbase5-dev libkf5parts-dev libkf5coreaddons-dev libkf5i18n-dev
 DEPS_13      := qt6-base-dev libkf6parts-dev libkf6coreaddons-dev libkf6i18n-dev
 
 .DEFAULT_GOAL := build
-.PHONY: help deps configure build test run install uninstall refresh-menu screenshot format clean distclean rebuild
+.PHONY: help deps configure build test run install uninstall refresh-menu screenshot social-preview format clean distclean rebuild
 
 help: ## Show this help
-	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  %-10s %s\n", $$1, $$2}'
+	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  %-15s %s\n", $$1, $$2}'
 
 deps: ## Install build dependencies for this Debian release (uses sudo apt)
 ifeq ($(DEBIAN_MAJOR),12)
@@ -89,6 +91,11 @@ screenshot: ## Regenerate docs/images/screenshot.png (app rendered off-screen wi
 	cmake -S . -B $(BUILD_DIR) $(CMAKE_ARGS) -DKSSHM_BUILD_SCREENSHOT_TOOL=ON
 	cmake --build $(BUILD_DIR) -j$(JOBS) --target konsole-ssh-manager-screenshot
 	./$(BUILD_DIR)/bin/konsole-ssh-manager-screenshot tools/screenshot/demo-ssh $(BUILD_DIR)/screenshot-home docs/images/screenshot.png
+
+social-preview: ## Regenerate data/social-preview.png (GitHub social preview; SCALE=2 for 1280x640)
+	cmake -S . -B $(BUILD_DIR) $(CMAKE_ARGS) -DKSSHM_BUILD_SOCIAL_PREVIEW_TOOL=ON
+	cmake --build $(BUILD_DIR) -j$(JOBS) --target konsole-ssh-manager-social-preview
+	./$(BUILD_DIR)/bin/konsole-ssh-manager-social-preview data/icons/$(DESKTOP_ID).svg data/social-preview.png $(SCALE)
 
 format: $(BUILD_DIR)/CMakeCache.txt ## Format sources with clang-format (KDE style)
 	cmake --build $(BUILD_DIR) --target clang-format

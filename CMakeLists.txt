@@ -66,6 +66,13 @@ if(KSSHM_BUILD_SCREENSHOT_TOOL)
     add_subdirectory(tools/screenshot)
 endif()
 
+# Generator for the GitHub social preview (data/social-preview.png). Off by default;
+# `make social-preview` turns it on. Never installed.
+option(KSSHM_BUILD_SOCIAL_PREVIEW_TOOL "Build the GitHub social preview generator" OFF)
+if(KSSHM_BUILD_SOCIAL_PREVIEW_TOOL)
+    add_subdirectory(tools/social-preview)
+endif()
+
 # Desktop entry for the application menu. It points at the installed binary
 # (CMAKE_INSTALL_PREFIX, ~/.local via `make install`), so the menu keeps working
 # independently of the build directory. See "docs/00 specs/15-installation.md".
