@@ -16,4 +16,4 @@ make screenshot
 
 The image is written to `docs/images/screenshot.png`, the file the main README shows.
 
-AI agents may run this only when the user explicitly asks for a new screenshot; see [Setup and build](../../docs/00%20specs/03-setup-and-build.md).
+AI agents may run this only when the user explicitly asks for a new screenshot; see [Setup and build](../../docs/00%20specs/04-setup-and-build.md).

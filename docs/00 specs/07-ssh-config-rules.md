@@ -20,7 +20,7 @@ These rules protect the user's SSH setup. Treat any violation as a bug.
 
 **Related specs:**
 
-- [Metadata format](07-metadata-format.md)
-- [Security](09-security.md)
-- [Testing and CI](10-testing.md)
-- [Supported platforms and tech stack](02-platforms-and-tech-stack.md)
+- [Metadata format](08-metadata-format.md)
+- [Security](10-security.md)
+- [Testing and CI](11-testing.md)
+- [Supported platforms and tech stack](03-platforms-and-tech-stack.md)

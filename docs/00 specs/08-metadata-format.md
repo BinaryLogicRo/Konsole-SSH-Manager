@@ -15,5 +15,5 @@ Unknown metadata keys must be preserved on write. Never store secrets in metadat
 
 **Related specs:**
 
-- [SSH config rules (critical)](06-ssh-config-rules.md)
-- [Security](09-security.md)
+- [SSH config rules (critical)](07-ssh-config-rules.md)
+- [Security](10-security.md)

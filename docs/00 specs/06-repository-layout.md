@@ -27,6 +27,6 @@ This layout is the target structure. Keep UI code out of `sshconfig/`: that laye
 **Related specs:**
 
 - [Project overview](01-project-overview.md)
-- [Version handling](04-version-handling.md)
-- [SSH config rules (critical)](06-ssh-config-rules.md)
-- [Testing and CI](10-testing.md)
+- [Version handling](05-version-handling.md)
+- [SSH config rules (critical)](07-ssh-config-rules.md)
+- [Testing and CI](11-testing.md)

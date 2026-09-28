@@ -23,7 +23,7 @@ Common pitfalls to avoid outside `compat.h`:
 
 **Related specs:**
 
-- [Supported platforms and tech stack](02-platforms-and-tech-stack.md)
-- [Setup and build](03-setup-and-build.md)
-- [Repository layout](05-repository-layout.md)
-- [Terminal embedding](08-terminal-embedding.md)
+- [Supported platforms and tech stack](03-platforms-and-tech-stack.md)
+- [Setup and build](04-setup-and-build.md)
+- [Repository layout](06-repository-layout.md)
+- [Terminal embedding](09-terminal-embedding.md)

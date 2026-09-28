@@ -11,6 +11,6 @@
 
 **Related specs:**
 
-- [Setup and build](03-setup-and-build.md)
-- [Repository layout](05-repository-layout.md)
-- [Commits and pull requests](13-commits-and-pull-requests.md)
+- [Setup and build](04-setup-and-build.md)
+- [Repository layout](06-repository-layout.md)
+- [Commits and pull requests](14-commits-and-pull-requests.md)

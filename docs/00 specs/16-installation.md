@@ -1,6 +1,6 @@
 ## Installation
 
-The app is installed for the current user only; no root access is needed and nothing outside the user's home is touched. There are no `.deb` packages (see [Packaging](11-packaging.md)). During development it can still be run straight from the build directory with `make run` (see [Setup and build](03-setup-and-build.md)).
+The app is installed for the current user only; no root access is needed and nothing outside the user's home is touched. There are no `.deb` packages (see [Packaging](12-packaging.md)). During development it can still be run straight from the build directory with `make run` (see [Setup and build](04-setup-and-build.md)).
 
 ### What gets installed
 
@@ -46,7 +46,7 @@ This removes the two executables, the menu entry and the icon, and refreshes the
 - `~/.local/share/konsole-ssh-manager/backups/`: backups of SSH configuration files, made before the app changed them.
 - Your SSH setup: hosts created with the app stay in `~/.ssh/config.d/konsole-ssh-manager.conf`, and `~/.ssh/config` keeps its `Include config.d/*` line if you added it, so `ssh` keeps using those hosts.
 
-Delete these by hand only if you no longer want them (see [SSH config rules](06-ssh-config-rules.md)).
+Delete these by hand only if you no longer want them (see [SSH config rules](07-ssh-config-rules.md)).
 
 ### Options
 
@@ -64,6 +64,6 @@ If the desktop file ID changes, it must change in all of these together: the tem
 
 **Related specs:**
 
-- [Setup and build](03-setup-and-build.md)
-- [Packaging](11-packaging.md)
-- [SSH config rules (critical)](06-ssh-config-rules.md)
+- [Setup and build](04-setup-and-build.md)
+- [Packaging](12-packaging.md)
+- [SSH config rules (critical)](07-ssh-config-rules.md)

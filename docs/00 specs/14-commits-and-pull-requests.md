@@ -3,7 +3,7 @@
 - Use Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `build:`).
 - One logical change per commit. Include tests with behavior changes.
 - Mention in the PR description if a change touches `compat.h`, and confirm it was tested on both releases.
-- Don't add new dependencies without noting why in the PR description. A new dependency must be packaged in **both** Debian 12 and Debian 13, and must come from a trustworthy, popular source (see [Security](09-security.md)).
+- Don't add new dependencies without noting why in the PR description. A new dependency must be packaged in **both** Debian 12 and Debian 13, and must come from a trustworthy, popular source (see [Security](10-security.md)).
 
 The conventions above apply to commits and pull requests made by the user. An AI agent may suggest a commit message or PR description that follows them, but must not create the commit or PR itself.
 
@@ -21,7 +21,7 @@ Read-only commands such as `status`, `diff`, `log`, `show`, and `blame` are allo
 
 **Related specs:**
 
-- [Version handling](04-version-handling.md)
-- [Testing and CI](10-testing.md)
-- [Code style](12-code-style.md)
-- [Security](09-security.md)
+- [Version handling](05-version-handling.md)
+- [Testing and CI](11-testing.md)
+- [Code style](13-code-style.md)
+- [Security](10-security.md)

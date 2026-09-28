@@ -8,7 +8,8 @@ The app reads the user's `~/.ssh/config` and owns a separate managed file that i
 
 **Related specs:**
 
-- [Supported platforms and tech stack](02-platforms-and-tech-stack.md)
-- [Repository layout](05-repository-layout.md)
-- [SSH config rules (critical)](06-ssh-config-rules.md)
-- [Terminal embedding](08-terminal-embedding.md)
+- [Features](02-features.md)
+- [Supported platforms and tech stack](03-platforms-and-tech-stack.md)
+- [Repository layout](06-repository-layout.md)
+- [SSH config rules (critical)](07-ssh-config-rules.md)
+- [Terminal embedding](09-terminal-embedding.md)

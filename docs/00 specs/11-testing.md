@@ -13,6 +13,6 @@ CI runs a matrix of `debian:12` (`QT_MAJOR_VERSION=5`) and `debian:13` (`QT_MAJO
 
 **Related specs:**
 
-- [Setup and build](03-setup-and-build.md)
-- [SSH config rules (critical)](06-ssh-config-rules.md)
-- [Commits and pull requests](13-commits-and-pull-requests.md)
+- [Setup and build](04-setup-and-build.md)
+- [SSH config rules (critical)](07-ssh-config-rules.md)
+- [Commits and pull requests](14-commits-and-pull-requests.md)

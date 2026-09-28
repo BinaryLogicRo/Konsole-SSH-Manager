@@ -75,7 +75,7 @@ endif()
 
 # Desktop entry for the application menu. It points at the installed binary
 # (CMAKE_INSTALL_PREFIX, ~/.local via `make install`), so the menu keeps working
-# independently of the build directory. See "docs/00 specs/15-installation.md".
+# independently of the build directory. See "docs/00 specs/16-installation.md".
 set(KSSHM_DESKTOP_ID "ro.binarylogic.konsole-ssh-manager")
 set(KSSHM_APP_PATH "${KDE_INSTALL_FULL_BINDIR}/konsole-ssh-manager")
 # Desktop Entry Exec quoting: backslash, double quote, backtick and dollar are
