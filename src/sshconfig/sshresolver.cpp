@@ -47,7 +47,9 @@ SshCommandResult SshResolver::validateHost(const SshHost &host, int timeoutMs)
     result.standardOutput = process.readAllStandardOutput();
     result.standardError = process.readAllStandardError();
     const QByteArray tempPath = file.fileName().toUtf8();
-    result.standardError.replace(tempPath + ": ", QByteArray()).replace(tempPath + ' ', QByteArray()).replace(tempPath, QByteArray());
+    const QByteArray tempPathColon = tempPath + ": ";
+    const QByteArray tempPathSpace = tempPath + ' ';
+    result.standardError.replace(tempPathColon, QByteArray()).replace(tempPathSpace, QByteArray()).replace(tempPath, QByteArray());
     qCDebug(KSSHM_CONFIG) << "ssh -G validation for" << alias << "exited with" << result.exitCode;
     return result;
 }
