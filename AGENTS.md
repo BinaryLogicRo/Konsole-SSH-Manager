@@ -33,3 +33,4 @@ AI agents must **never use GitHub Actions**, including triggering, enabling, con
 | 15 | [UI specifications](docs/00%20specs/15-ui-specifications.md) | Designing or changing the UI. |
 | 16 | [Installation](docs/00%20specs/16-installation.md) | Changing installation behavior. |
 | 17 | [Documentation](docs/00%20specs/17-documentation.md) | Creating or changing documentation. |
+| 18 | [Application version](docs/00%20specs/18-application-version.md) | Changing the app version or preparing a release. |
