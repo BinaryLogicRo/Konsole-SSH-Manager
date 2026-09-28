@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(konsole-ssh-manager VERSION 0.1.0 LANGUAGES CXX)
+project(konsole-ssh-manager VERSION 0.2.0 LANGUAGES CXX)
 
 # Qt 5 pairs with KF5 (Debian 12), Qt 6 pairs with KF6 (Debian 13).
 # When QT_MAJOR_VERSION is not given, prefer Qt 6 if Qt 6 and KF6 are both available.
