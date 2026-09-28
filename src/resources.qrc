@@ -5,4 +5,7 @@
     <qresource prefix="/icons">
         <file alias="konsole-ssh-manager.svg">../data/icons/ro.binarylogic.konsole-ssh-manager.svg</file>
     </qresource>
+    <qresource prefix="/licenses">
+        <file alias="MIT">../LICENSE</file>
+    </qresource>
 </RCC>

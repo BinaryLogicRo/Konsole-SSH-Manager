@@ -372,7 +372,12 @@ void MainWindow::showAbout()
     const KAboutData about = KAboutData::applicationData();
     QMessageBox::about(this,
                        i18nc("@title:window", "About %1", about.displayName()),
-                       i18n("<h3>%1 %2</h3><p>%3</p>", about.displayName(), about.version(), about.shortDescription()));
+                       i18n("<h3>%1 %2</h3><p>%3</p><p>Licensed under the MIT License.</p>"
+                            "<p>Uses Qt under the GNU LGPL. KDE Frameworks and Konsole have their own licenses; "
+                            "their license notices are supplied with those system packages.</p>",
+                            about.displayName(),
+                            about.version(),
+                            about.shortDescription()));
 }
 
 void MainWindow::restoreSettings()
