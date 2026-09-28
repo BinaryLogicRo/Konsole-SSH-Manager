@@ -17,6 +17,7 @@ AI agents must **never use GitHub Actions**, including triggering, enabling, con
 | # | Specification | Revisit when |
 |---|---|---|
 | 01 | [Project overview](docs/00%20specs/01-project-overview.md) | Starting work. |
+| 02 | [Features](docs/00%20specs/02-features.md) | Adding, changing, or removing a user-facing feature. |
 | 03 | [Supported platforms and tech stack](docs/00%20specs/03-platforms-and-tech-stack.md) | Making platform or technology decisions. |
 | 04 | [Setup and build](docs/00%20specs/04-setup-and-build.md) | Building, testing, or formatting. |
 | 05 | [Version handling](docs/00%20specs/05-version-handling.md) | Making compatibility changes. |
