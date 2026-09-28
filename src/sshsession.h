@@ -7,10 +7,15 @@
 //
 // The helper starts `ssh <alias>` as a direct child (no shell, no extra
 // options) in the tab's terminal. If ssh fails, it explains why below ssh's
-// own output and waits for Enter, so the tab doesn't vanish before the user
-// can read the error. A normal logout (exit status 0) closes the tab at once.
+// own output, reports the failure to the app so the tab can offer to retry,
+// and waits for Enter, so the tab doesn't vanish before the user can read the
+// error. A normal logout (exit status 0) closes the tab at once.
 namespace SshSession
 {
+// Environment variable with the socket where the app listens for failed
+// sessions (see SessionFailureListener). The helper doesn't pass it on to ssh.
+constexpr const char *ReportServerVariable = "KONSOLE_SSH_MANAGER_SOCKET";
+
 struct ChildResult {
     bool started = false;
     int exitCode = -1; // valid when started and not killed by a signal
@@ -35,10 +40,16 @@ ChildResult runChild(const QStringList &arguments);
 // User-visible explanation for a failed session.
 QString failureMessage(const QString &alias, const ChildResult &result);
 
+// Tells the app listening on `serverName` that this process's session failed.
+// The app recognizes the helper by the connecting process, so nothing is sent.
+// Returns false if `serverName` is empty or nobody is listening.
+bool reportFailure(const QString &serverName);
+
 // Blocks until Enter (or EOF) is read from `fd`. Discards earlier keypresses.
 void waitForEnter(int fd);
 
-// Runs `<program> <alias>`. On failure writes the explanation to `outputFd`
-// and waits for Enter on `inputFd`. Returns the shell-convention status.
-int run(const QString &program, const QString &alias, int inputFd, int outputFd);
+// Runs `<program> <alias>`. On failure writes the explanation to `outputFd`,
+// reports it to `reportServer` (if not empty) and waits for Enter on
+// `inputFd`. Returns the shell-convention status.
+int run(const QString &program, const QString &alias, int inputFd, int outputFd, const QString &reportServer);
 }

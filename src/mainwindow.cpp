@@ -3,10 +3,13 @@
 #include "hostoperations.h"
 #include "hostsidebar.h"
 #include "models/hosttreemodel.h"
+#include "sessionfailurelistener.h"
+#include "sshsession.h"
 #include "terminaltab.h"
 
 #include <QAction>
 #include <QCloseEvent>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
@@ -15,6 +18,7 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QSplitter>
+#include <QStandardPaths>
 #include <QStatusBar>
 #include <QStyle>
 #include <QTabBar>
@@ -42,6 +46,7 @@ MainWindow::MainWindow(const SshPaths &paths, QWidget *parent)
     , m_tabs(new QTabWidget(this))
     , m_splitter(new QSplitter(Qt::Horizontal, this))
     , m_operations(new HostOperations(m_store, m_sidebar, this))
+    , m_sessionFailures(new SessionFailureListener(this))
 {
     setWindowTitle(i18nc("@title:window", "Konsole SSH Manager"));
 
@@ -83,6 +88,12 @@ MainWindow::MainWindow(const SshPaths &paths, QWidget *parent)
     connect(m_tabs, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
     connect(m_tabs, &QTabWidget::currentChanged, this, &MainWindow::updateTabCloseButtons);
     connect(m_tabs->tabBar(), &QTabBar::tabMoved, this, &MainWindow::updateTabCloseButtons);
+
+    // Session helpers inherit the socket's path, so a tab whose ssh fails can offer to retry.
+    if (m_sessionFailures->listen(QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation))) {
+        qputenv(SshSession::ReportServerVariable, QFile::encodeName(m_sessionFailures->serverName()));
+    }
+    connect(m_sessionFailures, &SessionFailureListener::sessionFailed, this, &MainWindow::onSessionFailed);
 
     restoreSettings();
     onHostsChanged();
@@ -268,6 +279,9 @@ void MainWindow::connectToHost(const SshHost &host)
         return;
     }
     connect(tab, &TerminalTab::sessionFinished, this, &MainWindow::onSessionFinished);
+    connect(tab, &TerminalTab::closeRequested, this, [this](TerminalTab *closing) {
+        closeTab(m_tabs->indexOf(closing));
+    });
 
     int sameAlias = 0;
     for (int i = 0; i < m_tabs->count(); ++i) {
@@ -340,6 +354,17 @@ void MainWindow::onSessionFinished(TerminalTab *tab)
     }
     statusBar()->showMessage(i18n("Session to %1 ended.", tab->alias()), 5000);
     tab->deleteLater();
+}
+
+void MainWindow::onSessionFailed(qint64 helperPid)
+{
+    for (int i = 0; i < m_tabs->count(); ++i) {
+        auto *tab = qobject_cast<TerminalTab *>(m_tabs->widget(i));
+        if (tab && tab->sessionProcessId() == helperPid) {
+            tab->showFailure();
+            return;
+        }
+    }
 }
 
 void MainWindow::showAbout()

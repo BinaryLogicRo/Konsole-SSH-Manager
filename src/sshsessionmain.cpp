@@ -4,6 +4,7 @@
 #include "sshsession.h"
 
 #include <QCoreApplication>
+#include <QFile>
 
 #include <KLocalizedString>
 
@@ -22,5 +23,8 @@ int main(int argc, char **argv)
         std::fprintf(stderr, "%s\n", i18n("Usage: %1 <alias>", SshSession::helperName()).toLocal8Bit().constData());
         return 2;
     }
-    return SshSession::run(QStringLiteral("ssh"), arguments.at(1), STDIN_FILENO, STDOUT_FILENO);
+    // Only the helper talks to the app; ssh and the commands it runs don't inherit the socket.
+    const QString reportServer = QFile::decodeName(qgetenv(SshSession::ReportServerVariable));
+    qunsetenv(SshSession::ReportServerVariable);
+    return SshSession::run(QStringLiteral("ssh"), arguments.at(1), STDIN_FILENO, STDOUT_FILENO, reportServer);
 }

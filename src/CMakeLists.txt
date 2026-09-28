@@ -1,5 +1,5 @@
-# Display-free core: SSH config parsing, writing and loading, and the session
-# helper logic. Tests link against this.
+# Display-free core: SSH config parsing, writing and loading, the session
+# helper logic and the app's listener for failed sessions. Tests link against this.
 add_library(konsolesshmanager_core STATIC
     logging.cpp
     sshconfig/sshhost.cpp
@@ -11,9 +11,10 @@ add_library(konsolesshmanager_core STATIC
     sshconfig/sshresolver.cpp
     sshconfig/hoststore.cpp
     sshsession.cpp
+    sessionfailurelistener.cpp
 )
 target_include_directories(konsolesshmanager_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(konsolesshmanager_core PUBLIC Qt${QT_MAJOR_VERSION}::Core KF${KF_MAJOR_VERSION}::I18n)
+target_link_libraries(konsolesshmanager_core PUBLIC Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Network KF${KF_MAJOR_VERSION}::I18n)
 
 # Run inside each terminal tab: starts `ssh <alias>` and keeps the tab open on failure.
 add_executable(konsole-ssh-session sshsessionmain.cpp)

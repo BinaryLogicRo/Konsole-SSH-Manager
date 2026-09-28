@@ -3,6 +3,7 @@
 #include <QByteArray>
 #include <QFile>
 #include <QList>
+#include <QLocalSocket>
 
 #include <KLocalizedString>
 
@@ -115,6 +116,20 @@ QString SshSession::failureMessage(const QString &alias, const ChildResult &resu
     return i18n("The session to %1 ended with exit status %2.", alias, result.exitCode);
 }
 
+bool SshSession::reportFailure(const QString &serverName)
+{
+    if (serverName.isEmpty()) {
+        return false;
+    }
+    QLocalSocket socket;
+    socket.connectToServer(serverName);
+    if (!socket.waitForConnected(1000)) {
+        return false;
+    }
+    socket.disconnectFromServer();
+    return true;
+}
+
 void SshSession::waitForEnter(int fd)
 {
     if (::isatty(fd)) {
@@ -132,7 +147,7 @@ void SshSession::waitForEnter(int fd)
     }
 }
 
-int SshSession::run(const QString &program, const QString &alias, int inputFd, int outputFd)
+int SshSession::run(const QString &program, const QString &alias, int inputFd, int outputFd, const QString &reportServer)
 {
     const ChildResult result = runChild({program, alias});
     if (result.succeeded()) {
@@ -141,6 +156,7 @@ int SshSession::run(const QString &program, const QString &alias, int inputFd, i
     // "\r\n": a crashed ssh may leave the terminal without newline translation.
     const QString text = QStringLiteral("\r\n%1\r\n%2 ").arg(failureMessage(alias, result), i18n("Press Enter to close this tab."));
     writeAll(outputFd, text.toUtf8());
+    reportFailure(reportServer);
     waitForEnter(inputFd);
     return result.shellStatus();
 }

@@ -10,6 +10,7 @@ class QAction;
 class QLabel;
 class QSplitter;
 class QTabWidget;
+class SessionFailureListener;
 class TerminalTab;
 
 // Splitter with the host sidebar on one side (configurable) and SSH session
@@ -39,6 +40,7 @@ private:
     void closeTab(int index);
     void updateTabCloseButtons();
     void onSessionFinished(TerminalTab *tab);
+    void onSessionFailed(qint64 helperPid);
     void showAbout();
     void restoreSettings();
     void saveSettings() const;
@@ -49,6 +51,7 @@ private:
     QSplitter *m_splitter = nullptr;
     QWidget *m_includeBanner = nullptr;
     HostOperations *m_operations = nullptr;
+    SessionFailureListener *m_sessionFailures = nullptr;
 
     QAction *m_addAction = nullptr;
     QAction *m_connectAction = nullptr;
