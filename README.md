@@ -40,6 +40,11 @@ make uninstall # remove the installed files for your user
 
 - [ ] Refactor all the documentation to match the latest app behavior and features
 
+## License
+
+Konsole SSH Manager is licensed under the [MIT License](LICENSE).
+Qt, KDE Frameworks, and Konsole retain their own licenses; their terms are supplied with the system packages.
+
 ## Contributing
 
 Read [AGENTS.md](AGENTS.md) and the specs in [`docs/00 specs/`](docs/00%20specs/) before making changes. Changes must build and pass `make test` on both Debian 12 and Debian 13, and code is formatted with `make format`.
