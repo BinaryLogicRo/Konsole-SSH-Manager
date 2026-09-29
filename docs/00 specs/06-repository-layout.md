@@ -1,26 +1,25 @@
 ## Repository layout
 
 ```
+CMakeLists.txt         Build and install configuration
+Makefile               Developer commands
 src/
-  main.cpp               App entry, KAboutData, KLocalizedString setup
-  compat.h               All Qt5/Qt6 and KF5/KF6 differences
-  mainwindow.*           Splitter: sidebar + QTabWidget, sidebar side is configurable
-  terminaltab.*          Wraps one konsolepart instance and its ssh session
-  sshconfig/
-    sshconfigparser.*    Lossless parser for ssh_config files
-    sshconfigwriter.*    Serializes the managed file, atomic writes
-    sshhost.*            Host data model (alias + ordered options + metadata)
-  models/
-    hosttreemodel.*      QAbstractItemModel for the sidebar (groups → hosts)
-  dialogs/
-    hosteditdialog.*     Add/edit host form
-tests/
-  data/                  Sample ssh config fixtures
-  tst_sshconfigparser.cpp
-  tst_sshconfigwriter.cpp
+  main.cpp             App entry
+  mainwindow.cpp       Main window
+  hostsidebar.cpp      Host sidebar
+  terminaltab.cpp      Embedded terminal tabs
+  sshsessionmain.cpp   SSH helper entry
+  compat.h             Qt/KF compatibility
+  sshconfig/           Config parsing, storage, and writing
+  models/              Host tree model
+  dialogs/             Host editing and effective settings
+tests/                 Qt tests and SSH config fixtures
+data/                  Desktop entry and icon
+tools/                 Screenshot and social preview tools
+docs/                  Specs and images
 ```
 
-This layout is the target structure. Keep UI code out of `sshconfig/`: that layer must be testable without a display.
+Keep UI code out of `sshconfig/`: that layer must be testable without a display.
 
 ---
 
