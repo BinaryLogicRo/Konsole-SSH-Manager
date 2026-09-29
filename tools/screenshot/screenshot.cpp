@@ -1,4 +1,4 @@
-// Renders the README screenshot: the main window as a first-time user sees it.
+// Renders the README screenshot with fictional hosts and staged terminal tabs.
 //
 // Usage: konsole-ssh-manager-screenshot <demo-ssh-dir> <work-dir> <output.png>
 // (normally via `make screenshot`).
@@ -7,13 +7,14 @@
 // <demo-ssh-dir> (fictional hosts only). HOME and all XDG directories point into
 // it and the session D-Bus is dropped before Qt starts, so the user's real SSH
 // configuration, settings and desktop session are never read or touched. The
-// window is rendered off-screen and no SSH session is opened. The hosts that
-// were loaded are printed so the output can be checked for leaks.
+// window is rendered off-screen and no SSH session is opened. The terminal
+// transcript is fixed demo text. Loaded hosts are printed for a leak check.
 //
 // AI agents: this runs the app's UI, which the build spec forbids without the
 // user's explicit permission.
 
 #include "mainwindow.h"
+#include "models/hosttreemodel.h"
 #include "sshconfig/hoststore.h"
 
 #include <QApplication>
@@ -21,15 +22,20 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
+#include <QFontDatabase>
 #include <QIcon>
 #include <QImage>
 #include <QPainter>
 #include <QPainterPath>
+#include <QTabWidget>
+#include <QTextDocument>
+#include <QTextEdit>
 #include <QTimer>
 
 #include <KAboutData>
 #include <KLocalizedString>
 
+#include <algorithm>
 #include <cstdio>
 
 namespace
@@ -38,6 +44,64 @@ constexpr qreal Scale = 2.0; // output pixels per logical pixel
 constexpr int Margin = 48; // logical pixels of transparent space for the shadow
 constexpr int TitleBarHeight = 34; // logical
 constexpr qreal Radius = 8.0;
+
+bool addDemoTabs(MainWindow &window, const HostStore &store)
+{
+    auto *tabs = window.findChild<QTabWidget *>();
+    if (!tabs) {
+        return false;
+    }
+
+    const QStringList aliases{QStringLiteral("bastion"), QStringLiteral("web-01"), QStringLiteral("db-primary")};
+    for (const QString &alias : aliases) {
+        const auto it = std::find_if(store.hosts().cbegin(), store.hosts().cend(), [&alias](const SshHost &host) {
+            return host.alias() == alias && host.isConnectable();
+        });
+        if (it == store.hosts().cend()) {
+            std::fprintf(stderr, "Missing fictional demo host: %s\n", qPrintable(alias));
+            return false;
+        }
+
+        // Staged transcript inside the real tab widget. No Konsole part or ssh
+        // process is created, so the screenshot cannot contact any host.
+        auto *terminal = new QTextEdit(tabs);
+        terminal->setReadOnly(true);
+        terminal->setFocusPolicy(Qt::NoFocus);
+        terminal->setFrameShape(QFrame::NoFrame);
+        terminal->setLineWrapMode(QTextEdit::NoWrap);
+        terminal->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        terminal->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+        terminal->setStyleSheet(QStringLiteral("QTextEdit { background-color: #1e1e1e; color: #d4d4d4; }"));
+        terminal->document()->setDocumentMargin(18);
+        if (alias == QStringLiteral("web-01")) {
+            terminal->setHtml(
+                QStringLiteral("<pre style='margin:0; color:#d4d4d4'>"
+                               "Debian GNU/Linux 12  web-01.example.test\n\n"
+                               "<span style='color:#8bd49c'>deploy@web-01</span>:<span style='color:#83b9ec'>~</span>$ whoami\n"
+                               "deploy\n\n"
+                               "<span style='color:#8bd49c'>deploy@web-01</span>:<span style='color:#83b9ec'>~</span>$ pwd\n"
+                               "/home/deploy\n\n"
+                               "<span style='color:#8bd49c'>deploy@web-01</span>:<span style='color:#83b9ec'>~</span>$ ls -lh\n"
+                               "total 12K\n"
+                               "drwxr-xr-x 4 deploy deploy 4.0K Sep 24 10:12 app\n"
+                               "drwxr-xr-x 2 deploy deploy 4.0K Sep 24 10:12 logs\n"
+                               "drwxr-xr-x 3 deploy deploy 4.0K Sep 24 10:12 releases\n\n"
+                               "<span style='color:#8bd49c'>deploy@web-01</span>:<span style='color:#83b9ec'>~</span>$ df -h /\n"
+                               "Filesystem      Size  Used Avail Use% Mounted on\n"
+                               "/dev/vda1        40G   12G   26G  32% /\n\n"
+                               "<span style='color:#8bd49c'>deploy@web-01</span>:<span style='color:#83b9ec'>~</span>$ <span style='color:#d4d4d4'>▌</span>"
+                               "</pre>"));
+        } else {
+            const QString user = it->optionValue(u"User");
+            terminal->setHtml(QStringLiteral("<pre style='margin:0; color:#d4d4d4'><span style='color:#8bd49c'>%1@%2</span>:~$ ▌</pre>")
+                                  .arg(user.toHtmlEscaped(), alias.toHtmlEscaped()));
+        }
+        const int index = tabs->addTab(terminal, HostTreeModel::colorIcon(it->color()), alias);
+        tabs->setTabToolTip(index, it->optionValue(u"HostName"));
+    }
+    tabs->setCurrentIndex(1);
+    return true;
+}
 
 bool copyTree(const QString &from, const QString &to)
 {
@@ -210,6 +274,9 @@ int main(int argc, char **argv)
     }
 
     MainWindow window(paths);
+    if (!addDemoTabs(window, store)) {
+        return 1;
+    }
     window.show();
 
     int status = 1;
