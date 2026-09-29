@@ -2,9 +2,9 @@
 
 A KDE Plasma desktop app that manages SSH host profiles and opens them as embedded Konsole terminals: a sidebar with your hosts (grouped, filterable) and a tab per SSH session.
 
-![Konsole SSH Manager on first start: hosts from ~/.ssh/config listed read-only in the sidebar](docs/images/screenshot.png)
+![Konsole SSH Manager with fictional host profiles and three session tabs, showing command output in the active tab](docs/images/screenshot.png)
 
-*The screenshot shows fictional demo hosts only.*
+*The screenshot shows fictional demo hosts and staged terminal output only.*
 
 ## Features
 
