@@ -7,6 +7,8 @@
 
 The conventions above apply to commits and pull requests made by the user. An AI agent may suggest a commit message or PR description that follows them, but must not create the commit or PR itself.
 
+Every time an AI agent implements a fix or a new feature, it must end its output with a brief, one-line commit message for that change that follows the conventions above.
+
 ### Git: AI agents must never alter history
 
 AI agents must never run a git command that can alter the git history, refs, or remotes. This includes, but is not limited to:

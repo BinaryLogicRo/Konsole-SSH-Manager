@@ -29,7 +29,7 @@ AI agents must **never use GitHub Actions**, including triggering, enabling, con
 | 11 | [Testing and CI](docs/00%20specs/11-testing.md) | Writing or running tests. |
 | 12 | [Packaging](docs/00%20specs/12-packaging.md) | Considering distribution or runtime requirements. |
 | 13 | [Code style](docs/00%20specs/13-code-style.md) | Writing or reviewing code. |
-| 14 | [Commits and pull requests](docs/00%20specs/14-commits-and-pull-requests.md) | Using Git or preparing a change for review. |
+| 14 | [Commits and pull requests](docs/00%20specs/14-commits-and-pull-requests.md) | Using Git, preparing a change for review, or finishing a fix or feature. |
 | 15 | [UI specifications](docs/00%20specs/15-ui-specifications.md) | Designing or changing the UI. |
 | 16 | [Installation](docs/00%20specs/16-installation.md) | Changing installation behavior. |
 | 17 | [Documentation](docs/00%20specs/17-documentation.md) | Creating or changing documentation. |
