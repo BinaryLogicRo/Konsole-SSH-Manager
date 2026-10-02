@@ -90,6 +90,8 @@ HostEditDialog::HostEditDialog(const SshHost &host, const QStringList &groups, V
 
     m_group = new QComboBox(this);
     m_group->setEditable(true);
+    // Combo boxes don't expand by default, and some styles only grow expanding form fields.
+    m_group->setSizePolicy(QSizePolicy::Expanding, m_group->sizePolicy().verticalPolicy());
     m_group->addItem(QString());
     m_group->addItems(groups);
 
