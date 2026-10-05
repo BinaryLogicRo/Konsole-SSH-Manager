@@ -23,6 +23,37 @@ A KDE Plasma desktop app that manages SSH host profiles and opens them as embedd
 
 Linux only. Konsole and the OpenSSH client must be installed at runtime.
 
+## Installation
+
+Download the source and enter its directory:
+
+```bash
+git clone --depth 1 https://github.com/BinaryLogicRo/SSH-console-manager.git
+cd SSH-console-manager
+```
+
+`--depth 1` downloads only the latest commit.
+
+Install the dependencies for Debian 12:
+
+```bash
+sudo apt install build-essential cmake extra-cmake-modules qtbase5-dev libkf5parts-dev libkf5coreaddons-dev libkf5i18n-dev konsole openssh-client
+```
+
+Or, for Debian 13:
+
+```bash
+sudo apt install build-essential cmake extra-cmake-modules qt6-base-dev libkf6parts-dev libkf6coreaddons-dev libkf6i18n-dev konsole openssh-client
+```
+
+Build and install the app for your user:
+
+```bash
+make install
+```
+
+Do not use `sudo` for this command.
+
 ## Build and run
 
 ```bash
