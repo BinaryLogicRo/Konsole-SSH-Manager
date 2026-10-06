@@ -62,6 +62,10 @@ namespace SshValidation
 bool isValidAlias(QStringView alias);
 // A valid alias that is also not a wildcard or negated pattern.
 bool isConcretePattern(QStringView pattern);
+// Letters, digits, '.', '-' and '_', starting with a letter or digit: what the
+// host form accepts for new or edited aliases. Stricter than isConcretePattern,
+// so the alias also passes the host argument checks of OpenSSH 9.6 and later.
+bool isUsableAlias(QStringView alias);
 // ASCII letters and digits only.
 bool isValidKeyword(QStringView keyword);
 // Non-empty, no control characters (so a value can't inject extra lines).

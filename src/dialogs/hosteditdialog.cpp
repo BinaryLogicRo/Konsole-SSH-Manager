@@ -257,8 +257,8 @@ void HostEditDialog::accept()
 
 QString HostEditDialog::validationError(const SshHost &host) const
 {
-    if (!SshValidation::isConcretePattern(m_alias->text().trimmed())) {
-        return i18n("The alias must not be empty, start with \"-\", or contain spaces, control characters, quotes, \"#\", \"\\\" or wildcards.");
+    if (!SshValidation::isUsableAlias(m_alias->text().trimmed())) {
+        return i18n("The alias may contain only letters, digits, \".\", \"-\" and \"_\", and must start with a letter or digit.");
     }
     for (const SshOption &option : host.options) {
         if (!SshValidation::isValidKeyword(option.keyword) || isStructuralKeyword(option.keyword)) {

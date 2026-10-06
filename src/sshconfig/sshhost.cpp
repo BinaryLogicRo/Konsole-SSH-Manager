@@ -1,5 +1,7 @@
 #include "sshhost.h"
 
+#include <algorithm>
+
 namespace
 {
 const QLatin1String s_metadataPrefix("sshmanager:");
@@ -130,6 +132,14 @@ bool SshValidation::isConcretePattern(QStringView pattern)
         return false;
     }
     return !pattern.contains(QLatin1Char('*')) && !pattern.contains(QLatin1Char('?'));
+}
+
+bool SshValidation::isUsableAlias(QStringView alias)
+{
+    const auto isAllowed = [](QChar c) {
+        return c.isLetterOrNumber() || c == QLatin1Char('.') || c == QLatin1Char('-') || c == QLatin1Char('_');
+    };
+    return !alias.isEmpty() && alias.front().isLetterOrNumber() && std::all_of(alias.begin(), alias.end(), isAllowed);
 }
 
 bool SshValidation::isValidKeyword(QStringView keyword)

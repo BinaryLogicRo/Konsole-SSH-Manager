@@ -12,21 +12,31 @@ private Q_SLOTS:
         QTest::addColumn<QString>("alias");
         QTest::addColumn<bool>("valid");
         QTest::addColumn<bool>("concrete");
+        QTest::addColumn<bool>("usable");
 
-        QTest::newRow("plain") << QStringLiteral("prod-db") << true << true;
-        QTest::newRow("dots and at") << QStringLiteral("user@host.example.com") << true << true;
-        QTest::newRow("unicode") << QStringLiteral("café") << true << true;
-        QTest::newRow("empty") << QString() << false << false;
-        QTest::newRow("leading dash") << QStringLiteral("-oProxyCommand=x") << false << false;
-        QTest::newRow("space") << QStringLiteral("a b") << false << false;
-        QTest::newRow("tab") << QStringLiteral("a\tb") << false << false;
-        QTest::newRow("newline") << QStringLiteral("a\nb") << false << false;
-        QTest::newRow("control") << QStringLiteral("a\x01") << false << false;
-        QTest::newRow("quote") << QStringLiteral("a\"b") << false << false;
-        QTest::newRow("hash") << QStringLiteral("a#b") << false << false;
-        QTest::newRow("wildcard") << QStringLiteral("web-*") << true << false;
-        QTest::newRow("question") << QStringLiteral("web?") << true << false;
-        QTest::newRow("negated") << QStringLiteral("!web") << true << false;
+        QTest::newRow("plain") << QStringLiteral("prod-db") << true << true << true;
+        QTest::newRow("dots and underscore") << QStringLiteral("db_1.example.com") << true << true << true;
+        QTest::newRow("at") << QStringLiteral("user@host.example.com") << true << true << false;
+        QTest::newRow("unicode") << QStringLiteral("café") << true << true << true;
+        QTest::newRow("empty") << QString() << false << false << false;
+        QTest::newRow("leading dash") << QStringLiteral("-oProxyCommand=x") << false << false << false;
+        QTest::newRow("space") << QStringLiteral("a b") << false << false << false;
+        QTest::newRow("tab") << QStringLiteral("a\tb") << false << false << false;
+        QTest::newRow("newline") << QStringLiteral("a\nb") << false << false << false;
+        QTest::newRow("control") << QStringLiteral("a\x01") << false << false << false;
+        QTest::newRow("quote") << QStringLiteral("a\"b") << false << false << false;
+        QTest::newRow("hash") << QStringLiteral("a#b") << false << false << false;
+        QTest::newRow("wildcard") << QStringLiteral("web-*") << true << false << false;
+        QTest::newRow("question") << QStringLiteral("web?") << true << false << false;
+        QTest::newRow("negated") << QStringLiteral("!web") << true << false << false;
+        QTest::newRow("single quote") << QStringLiteral("a'b") << false << false << false;
+        QTest::newRow("leading dot") << QStringLiteral(".web") << true << true << false;
+        QTest::newRow("leading underscore") << QStringLiteral("_web") << true << true << false;
+        QTest::newRow("digit first") << QStringLiteral("10.0.0.1") << true << true << true;
+        for (const QChar c : QStringView(u"`$;&<>|(){},@:+=%/~")) {
+            QTest::addRow("character %c", c.toLatin1()) << (QStringLiteral("a") + c + QStringLiteral("b")) << true << true << false;
+        }
+        QTest::newRow("backslash") << QStringLiteral("a\\b") << false << false << false;
     }
 
     void aliasValidation()
@@ -34,8 +44,10 @@ private Q_SLOTS:
         QFETCH(QString, alias);
         QFETCH(bool, valid);
         QFETCH(bool, concrete);
+        QFETCH(bool, usable);
         QCOMPARE(SshValidation::isValidAlias(alias), valid);
         QCOMPARE(SshValidation::isConcretePattern(alias), concrete);
+        QCOMPARE(SshValidation::isUsableAlias(alias), usable);
     }
 
     void keywordAndValueValidation()
