@@ -1,5 +1,6 @@
 #include "agentpaneltext.h"
 
+#include <QPixmap>
 #include <QStringList>
 
 #include <KLocalizedString>
@@ -9,6 +10,21 @@ namespace
 QString withDetail(const QString &text, const QString &detail)
 {
     return detail.isEmpty() ? text : i18nc("status: %1 problem, %2 ssh-add's message", "%1 %2", text, detail);
+}
+
+// A theme icon that keeps its colors in a selected row. Breeze emblems are drawn
+// with color scheme classes, which the selection would recolor to its plain
+// text color, hiding the check mark or symbol inside them.
+QIcon fixedColorIcon(const QString &name)
+{
+    const QIcon themed = QIcon::fromTheme(name);
+    QIcon icon;
+    for (const int size : {16, 22, 32}) {
+        const QPixmap pixmap = themed.pixmap(size, size);
+        icon.addPixmap(pixmap, QIcon::Normal);
+        icon.addPixmap(pixmap, QIcon::Selected);
+    }
+    return icon;
 }
 }
 
@@ -44,11 +60,11 @@ QIcon AgentPanelText::stateIcon(SshKeyEntry::State state)
 {
     switch (state) {
     case SshKeyEntry::State::Loaded:
-        return QIcon::fromTheme(QStringLiteral("emblem-checked"));
+        return fixedColorIcon(QStringLiteral("emblem-checked"));
     case SshKeyEntry::State::Missing:
-        return QIcon::fromTheme(QStringLiteral("emblem-warning"));
+        return fixedColorIcon(QStringLiteral("emblem-warning"));
     case SshKeyEntry::State::Unknown:
-        return QIcon::fromTheme(QStringLiteral("emblem-question"));
+        return fixedColorIcon(QStringLiteral("emblem-question"));
     case SshKeyEntry::State::NotLoaded:
         break;
     }
