@@ -4,7 +4,7 @@ No `.deb` (or any other) packages are created. The app is built from source; see
 
 The only exceptions are the per-user install: `make install` / `make uninstall` (backed by CMake `install()` rules) copy the executables to `~/.local/bin`, the menu entry, generated from the desktop entry template `data/ro.binarylogic.konsole-ssh-manager.desktop.in`, to `~/.local/share/applications`, and the app icon from `data/icons/` to `~/.local/share/icons/hicolor/scalable/apps`. See [Installation](16-installation.md).
 
-At runtime the app needs `konsole` and `openssh-client` installed. The app icon is an SVG, drawn by Qt's SVG plugins (`libqt5svg5` on Debian 12, `qt6-svg-plugins` on Debian 13), which a Plasma desktop already has.
+At runtime the app needs `konsole` and `openssh-client` installed. Loading passphrase-protected keys from the [SSH agent panel](19-ssh-agent-panel.md) also needs an askpass program, such as `ksshaskpass`. The app icon is an SVG, drawn by Qt's SVG plugins (`libqt5svg5` on Debian 12, `qt6-svg-plugins` on Debian 13), which a Plasma desktop already has.
 
 If `.deb` packaging is ever introduced, each Debian release needs its own package, because the Qt/KF libraries differ.
 

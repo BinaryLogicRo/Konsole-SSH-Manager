@@ -1,6 +1,6 @@
 ## Project overview
 
-A KDE Plasma desktop app that manages SSH host profiles and opens connections as embedded Konsole terminals. The window has a sidebar (host tree with groups) and a tabbed area where each tab is an embedded `konsolepart` running `ssh <alias>`.
+A KDE Plasma desktop app that manages SSH host profiles and opens connections as embedded Konsole terminals. The window has a sidebar (host tree with groups, and a panel for the SSH agent's keys) and a tabbed area where each tab is an embedded `konsolepart` running `ssh <alias>`.
 
 The app reads the user's `~/.ssh/config` and owns a separate managed file that it creates, edits, and deletes hosts in. It never rewrites the user's handwritten config.
 
@@ -13,3 +13,4 @@ The app reads the user's `~/.ssh/config` and owns a separate managed file that i
 - [Repository layout](06-repository-layout.md)
 - [SSH config rules (critical)](07-ssh-config-rules.md)
 - [Terminal embedding](09-terminal-embedding.md)
+- [SSH agent panel](19-ssh-agent-panel.md)

@@ -34,3 +34,4 @@ AI agents must **never use GitHub Actions**, including triggering, enabling, con
 | 16 | [Installation](docs/00%20specs/16-installation.md) | Changing installation behavior. |
 | 17 | [Documentation](docs/00%20specs/17-documentation.md) | Creating or changing documentation. |
 | 18 | [Application version](docs/00%20specs/18-application-version.md) | Changing the app version, preparing a release, or writing a release message. |
+| 19 | [SSH agent panel](docs/00%20specs/19-ssh-agent-panel.md) | Changing the SSH agent panel or how the app loads keys. |

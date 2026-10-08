@@ -40,6 +40,12 @@ What the app offers its users. Keep this list current: update it whenever a user
 - When a connection fails or drops, keeps the tab open with ssh's error and offers Retry and Close Tab buttons.
 - Asks for confirmation before quitting with sessions still open.
 
+### SSH agent
+
+- A panel below the host tree shows whether the SSH agent is available, and lists the keys it holds.
+- Lists the keys used by the SSH configuration first, then keys the user adds by choosing a file.
+- Loads keys into the agent and removes them, showing any error inline.
+
 ### Security
 
 - Connects using only the host's alias, never with extra options or through a shell.
@@ -62,3 +68,4 @@ What the app offers its users. Keep this list current: update it whenever a user
 - [Security](10-security.md)
 - [UI specifications](15-ui-specifications.md)
 - [Installation](16-installation.md)
+- [SSH agent panel](19-ssh-agent-panel.md)
