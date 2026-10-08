@@ -7,10 +7,12 @@ src/
   main.cpp             App entry
   mainwindow.cpp       Main window
   hostsidebar.cpp      Host sidebar
+  agentpanel.cpp       SSH agent panel
   terminaltab.cpp      Embedded terminal tabs
   sshsessionmain.cpp   SSH helper entry
   compat.h             Qt/KF compatibility
   sshconfig/           Config parsing, storage, and writing
+  sshagent/            SSH agent and key file handling
   models/              Host tree model
   dialogs/             Host editing and effective settings
 tests/                 Qt tests and SSH config fixtures
@@ -19,7 +21,7 @@ tools/                 Screenshot and social preview tools
 docs/                  Specs and images
 ```
 
-Keep UI code out of `sshconfig/`: that layer must be testable without a display.
+Keep UI code out of `sshconfig/` and `sshagent/`: those layers must be testable without a display.
 
 ---
 

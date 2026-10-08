@@ -1,9 +1,11 @@
 #include "mainwindow.h"
+#include "agentpanel.h"
 #include "dialogs/effectivesettingsdialog.h"
 #include "hostoperations.h"
 #include "hostsidebar.h"
 #include "models/hosttreemodel.h"
 #include "sessionfailurelistener.h"
+#include "sshagent/sshkeylist.h"
 #include "sshsession.h"
 #include "terminaltab.h"
 
@@ -28,6 +30,7 @@
 
 #include <KAboutData>
 #include <KLocalizedString>
+#include <KUser>
 
 #include <algorithm>
 
@@ -45,6 +48,8 @@ MainWindow::MainWindow(const SshPaths &paths, QWidget *parent)
     , m_sidebar(new HostSidebar(this))
     , m_tabs(new QTabWidget(this))
     , m_splitter(new QSplitter(Qt::Horizontal, this))
+    , m_sidebarSplitter(new QSplitter(Qt::Vertical, this))
+    , m_agentPanel(new AgentPanel(this))
     , m_operations(new HostOperations(m_store, m_sidebar, this))
     , m_sessionFailures(new SessionFailureListener(this))
 {
@@ -53,7 +58,13 @@ MainWindow::MainWindow(const SshPaths &paths, QWidget *parent)
     m_tabs->setTabsClosable(true);
     m_tabs->setMovable(true);
     m_tabs->setDocumentMode(true);
-    m_splitter->addWidget(m_sidebar);
+    // The agent panel sits below the host tree and moves with it.
+    m_sidebarSplitter->addWidget(m_sidebar);
+    m_sidebarSplitter->addWidget(m_agentPanel);
+    m_sidebarSplitter->setChildrenCollapsible(false);
+    m_sidebarSplitter->setStretchFactor(0, 1);
+    m_sidebarSplitter->setStretchFactor(1, 0);
+    m_splitter->addWidget(m_sidebarSplitter);
     m_splitter->addWidget(m_tabs);
     m_splitter->setChildrenCollapsible(false);
 
@@ -158,6 +169,10 @@ void MainWindow::setupActions()
     m_sidebarRightAction->setCheckable(true);
     connect(m_sidebarRightAction, &QAction::toggled, this, &MainWindow::setSidebarOnRight);
 
+    m_agentPanelAction = new QAction(i18nc("@action", "Show SSH A&gent Panel"), this);
+    m_agentPanelAction->setCheckable(true);
+    connect(m_agentPanelAction, &QAction::toggled, m_agentPanel, &QWidget::setVisible);
+
     m_activeTabCloseButtonAction = new QAction(i18nc("@action", "Close Button on &Active Tab Only"), this);
     m_activeTabCloseButtonAction->setCheckable(true);
     connect(m_activeTabCloseButtonAction, &QAction::toggled, this, &MainWindow::updateTabCloseButtons);
@@ -211,6 +226,7 @@ void MainWindow::setupMenusAndToolBar()
     QMenu *viewMenu = menuBar()->addMenu(i18nc("@title:menu", "&View"));
     viewMenu->addAction(toolBarAction);
     viewMenu->addAction(m_sidebarRightAction);
+    viewMenu->addAction(m_agentPanelAction);
     viewMenu->addAction(m_activeTabCloseButtonAction);
     viewMenu->addSeparator();
     viewMenu->addAction(m_nextTabAction);
@@ -236,6 +252,7 @@ void MainWindow::updateActions()
 void MainWindow::onHostsChanged()
 {
     m_sidebar->setHosts(m_store->hosts(), m_store->paths().homeDir);
+    m_agentPanel->setConfigKeys(SshIdentityFiles::fromHosts(m_store->hosts(), m_store->paths().homeDir, KUser().loginName()));
 
     const bool hasManagedHosts = std::any_of(m_store->hosts().cbegin(), m_store->hosts().cend(), [](const SshHost &host) {
         return !host.readOnly;
@@ -311,14 +328,14 @@ void MainWindow::showEffectiveSettings()
 
 void MainWindow::setSidebarOnRight(bool onRight)
 {
-    const int sidebarIndex = m_splitter->indexOf(m_sidebar);
+    const int sidebarIndex = m_splitter->indexOf(m_sidebarSplitter);
     if ((sidebarIndex == 1) == onRight) {
         return;
     }
     QList<int> sizes = m_splitter->sizes();
     std::reverse(sizes.begin(), sizes.end());
-    m_splitter->insertWidget(onRight ? 1 : 0, m_sidebar);
-    m_splitter->setStretchFactor(m_splitter->indexOf(m_sidebar), 0);
+    m_splitter->insertWidget(onRight ? 1 : 0, m_sidebarSplitter);
+    m_splitter->setStretchFactor(m_splitter->indexOf(m_sidebarSplitter), 0);
     m_splitter->setStretchFactor(m_splitter->indexOf(m_tabs), 1);
     m_splitter->setSizes(sizes);
 }
@@ -386,13 +403,21 @@ void MainWindow::restoreSettings()
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
     m_splitter->setSizes({260, 900});
+    m_sidebarSplitter->setSizes({460, 240});
     m_sidebarRightAction->setChecked(settings.value(QStringLiteral("sidebar/onRight"), false).toBool());
     m_activeTabCloseButtonAction->setChecked(settings.value(QStringLiteral("tabs/closeButtonOnActiveTabOnly"), false).toBool());
+    m_agentPanelAction->setChecked(settings.value(QStringLiteral("agentPanel/visible"), true).toBool());
+    m_agentPanel->setVisible(m_agentPanelAction->isChecked());
+    m_agentPanel->setAddedKeys(settings.value(QStringLiteral("agentPanel/addedKeys")).toStringList());
     restoreGeometry(settings.value(QStringLiteral("window/geometry")).toByteArray());
     restoreState(settings.value(QStringLiteral("window/state")).toByteArray());
     const QByteArray splitterState = settings.value(QStringLiteral("window/splitter")).toByteArray();
     if (!splitterState.isEmpty()) {
         m_splitter->restoreState(splitterState);
+    }
+    const QByteArray sidebarSplitterState = settings.value(QStringLiteral("window/sidebarSplitter")).toByteArray();
+    if (!sidebarSplitterState.isEmpty()) {
+        m_sidebarSplitter->restoreState(sidebarSplitterState);
     }
     if (settings.value(QStringLiteral("window/geometry")).isNull()) {
         resize(1200, 760);
@@ -404,7 +429,10 @@ void MainWindow::saveSettings() const
     QSettings settings = appSettings();
     settings.setValue(QStringLiteral("sidebar/onRight"), m_sidebarRightAction->isChecked());
     settings.setValue(QStringLiteral("tabs/closeButtonOnActiveTabOnly"), m_activeTabCloseButtonAction->isChecked());
+    settings.setValue(QStringLiteral("agentPanel/visible"), m_agentPanelAction->isChecked());
+    settings.setValue(QStringLiteral("agentPanel/addedKeys"), m_agentPanel->addedKeys());
     settings.setValue(QStringLiteral("window/geometry"), saveGeometry());
     settings.setValue(QStringLiteral("window/state"), saveState());
     settings.setValue(QStringLiteral("window/splitter"), m_splitter->saveState());
+    settings.setValue(QStringLiteral("window/sidebarSplitter"), m_sidebarSplitter->saveState());
 }

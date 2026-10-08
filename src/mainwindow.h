@@ -4,6 +4,7 @@
 
 #include <QMainWindow>
 
+class AgentPanel;
 class HostOperations;
 class HostSidebar;
 class QAction;
@@ -13,8 +14,8 @@ class QTabWidget;
 class SessionFailureListener;
 class TerminalTab;
 
-// Splitter with the host sidebar on one side (configurable) and SSH session
-// tabs on the other.
+// Splitter with the sidebar on one side (configurable) and SSH session tabs on
+// the other. The sidebar holds the host tree and, below it, the SSH agent panel.
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -49,6 +50,8 @@ private:
     HostSidebar *m_sidebar = nullptr;
     QTabWidget *m_tabs = nullptr;
     QSplitter *m_splitter = nullptr;
+    QSplitter *m_sidebarSplitter = nullptr; // host sidebar above the agent panel
+    AgentPanel *m_agentPanel = nullptr;
     QWidget *m_includeBanner = nullptr;
     HostOperations *m_operations = nullptr;
     SessionFailureListener *m_sessionFailures = nullptr;
@@ -61,6 +64,7 @@ private:
     QAction *m_importAction = nullptr;
     QAction *m_effectiveAction = nullptr;
     QAction *m_sidebarRightAction = nullptr;
+    QAction *m_agentPanelAction = nullptr;
     QAction *m_activeTabCloseButtonAction = nullptr;
     QAction *m_nextTabAction = nullptr;
     QAction *m_previousTabAction = nullptr;

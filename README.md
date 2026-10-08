@@ -13,6 +13,7 @@ A KDE Plasma desktop app that manages SSH host profiles and opens them as embedd
 - Edits are lossless: comments, formatting and unknown options are preserved. Files are written atomically with `0600` permissions, and one backup is made per session in `~/.local/share/konsole-ssh-manager/backups/`.
 - Entries are validated with `ssh -G`, and "Show Effective Settings" displays what OpenSSH will actually use for a host.
 - Sessions run as `ssh <alias>`. If a connection fails or drops, the tab stays open showing ssh's error, with buttons to retry the connection or close the tab. No passwords are stored; use keys and ssh-agent.
+- An SSH agent panel below the hosts shows whether ssh-agent is running and which keys it holds. It loads and removes the keys your configuration uses, and any other key file you choose. Passphrases are asked for by the desktop's askpass program, never by the app.
 
 ## Supported platforms
 

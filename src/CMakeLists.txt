@@ -1,5 +1,6 @@
-# Display-free core: SSH config parsing, writing and loading, the session
-# helper logic and the app's listener for failed sessions. Tests link against this.
+# Display-free core: SSH config parsing, writing and loading, SSH agent and
+# key file handling, the session helper logic and the app's listener for
+# failed sessions. Tests link against this.
 add_library(konsolesshmanager_core STATIC
     logging.cpp
     sshconfig/sshhost.cpp
@@ -10,6 +11,9 @@ add_library(konsolesshmanager_core STATIC
     sshconfig/sshkeywords.cpp
     sshconfig/sshresolver.cpp
     sshconfig/hoststore.cpp
+    sshagent/sshagentformat.cpp
+    sshagent/sshkeylist.cpp
+    sshagent/sshagentclient.cpp
     sshsession.cpp
     sessionfailurelistener.cpp
 )
@@ -24,6 +28,8 @@ target_link_libraries(konsole-ssh-session PRIVATE konsolesshmanager_core)
 add_library(konsolesshmanager_ui STATIC
     mainwindow.cpp
     hostsidebar.cpp
+    agentpanel.cpp
+    agentpaneltext.cpp
     hostoperations.cpp
     terminaltab.cpp
     models/hosttreemodel.cpp
