@@ -2,7 +2,7 @@
 
 Renders the screenshot shown in the main README: the app's main window with three sample session tabs and command output in the active tab, framed like a desktop window. Run it again whenever the UI changes visibly. The generator is a development helper only; it is never installed and is not part of the app.
 
-The window only ever shows fictional demo hosts from the `demo-ssh` folder next to this file. The generator runs the app in a throwaway home folder, so it never reads or changes your real SSH configuration or settings. The terminal output is staged; it doesn't open any SSH sessions. It prints the hosts it loaded so you can check that nothing real appears. To change what the screenshot shows, keep every name, address, and command result fictional.
+The window only ever shows fictional demo hosts from the `demo-ssh` folder next to this file. The generator runs the app in a throwaway home folder, so it never reads or changes your real SSH configuration or settings. The terminal output is staged; it doesn't open any SSH sessions. It prints the hosts it loaded and what the SSH agent panel shows, so you can check that nothing real appears. It never uses your SSH agent. To change what the screenshot shows, keep every name, address, and command result fictional.
 
 ## Build
 

@@ -8,11 +8,14 @@
 // it and the session D-Bus is dropped before Qt starts, so the user's real SSH
 // configuration, settings and desktop session are never read or touched. The
 // window is rendered off-screen and no SSH session is opened. The terminal
-// transcript is fixed demo text. Loaded hosts are printed for a leak check.
+// transcript is fixed demo text. Loaded hosts, and what the SSH agent panel
+// shows, are printed for a leak check. SSH_AUTH_SOCK is unset, so the panel
+// never sees the user's agent; it lists only the demo configuration's keys.
 //
 // AI agents: this runs the app's UI, which the build spec forbids without the
 // user's explicit permission.
 
+#include "agentpanel.h"
 #include "mainwindow.h"
 #include "models/hosttreemodel.h"
 #include "sshconfig/hoststore.h"
@@ -25,12 +28,14 @@
 #include <QFontDatabase>
 #include <QIcon>
 #include <QImage>
+#include <QLabel>
 #include <QPainter>
 #include <QPainterPath>
 #include <QTabWidget>
 #include <QTextDocument>
 #include <QTextEdit>
 #include <QTimer>
+#include <QTreeWidget>
 
 #include <KAboutData>
 #include <KLocalizedString>
@@ -100,6 +105,37 @@ bool addDemoTabs(MainWindow &window, const HostStore &store)
         tabs->setTabToolTip(index, it->optionValue(u"HostName"));
     }
     tabs->setCurrentIndex(1);
+    return true;
+}
+
+// Leak check: prints the agent panel's status and key list as rendered.
+bool printAgentPanel(const MainWindow &window)
+{
+    const auto *panel = window.findChild<AgentPanel *>();
+    const auto *keys = panel ? panel->findChild<QTreeWidget *>() : nullptr;
+    if (!keys) {
+        std::fprintf(stderr, "The SSH agent panel was not found\n");
+        return false;
+    }
+    std::printf("SSH agent panel%s:\n", panel->isVisibleTo(&window) ? "" : " (hidden)");
+    const QList<QLabel *> labels = panel->findChildren<QLabel *>();
+    for (const QLabel *label : labels) {
+        if (!label->text().isEmpty() && label->isVisibleTo(panel)) {
+            std::printf("  %s\n", qPrintable(label->text()));
+        }
+    }
+    for (int row = 0; row < keys->topLevelItemCount(); ++row) {
+        const QTreeWidgetItem *item = keys->topLevelItem(row);
+        QStringList columns;
+        for (int column = 0; column < keys->columnCount(); ++column) {
+            if (!item->text(column).isEmpty()) {
+                columns.append(item->text(column));
+            }
+        }
+        // Keys are indented below their group's title.
+        const char *indent = item->flags().testFlag(Qt::ItemIsSelectable) ? "    " : "  ";
+        std::printf("%s%s\n", indent, qPrintable(columns.join(QStringLiteral(" | "))));
+    }
     return true;
 }
 
@@ -281,6 +317,10 @@ int main(int argc, char **argv)
 
     int status = 1;
     QTimer::singleShot(1000, &app, [&] {
+        if (!printAgentPanel(window)) {
+            app.quit();
+            return;
+        }
         QImage image(window.size() * Scale, QImage::Format_ARGB32_Premultiplied);
         image.setDevicePixelRatio(Scale);
         image.fill(Qt::transparent);
