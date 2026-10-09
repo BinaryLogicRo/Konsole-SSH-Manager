@@ -36,8 +36,8 @@ MENU_CACHE_TOOL := $(firstword $(foreach tool,kbuildsycoca6 kbuildsycoca5,$(shel
 
 DEBIAN_MAJOR := $(shell cut -d. -f1 /etc/debian_version 2>/dev/null)
 DEPS_COMMON  := build-essential cmake extra-cmake-modules konsole openssh-client clang-format
-DEPS_12      := qtbase5-dev libkf5parts-dev libkf5coreaddons-dev libkf5i18n-dev
-DEPS_13      := qt6-base-dev libkf6parts-dev libkf6coreaddons-dev libkf6i18n-dev
+DEPS_12      := qtbase5-dev libkf5parts-dev libkf5coreaddons-dev libkf5i18n-dev libkf5widgetsaddons-dev
+DEPS_13      := qt6-base-dev libkf6parts-dev libkf6coreaddons-dev libkf6i18n-dev libkf6widgetsaddons-dev
 
 .DEFAULT_GOAL := build
 .PHONY: help deps configure build test run install uninstall refresh-menu screenshot social-preview format clean distclean rebuild

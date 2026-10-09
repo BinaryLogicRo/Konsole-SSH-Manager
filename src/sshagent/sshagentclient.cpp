@@ -20,9 +20,6 @@ constexpr int QueryTimeoutMs = 10000;
 constexpr int RemoveTimeoutMs = 10000;
 constexpr int NoTimeout = -1;
 
-// OpenSSH's built-in askpass path on Debian, used when SSH_ASKPASS isn't set.
-const QLatin1String s_defaultAskpass("/usr/bin/ssh-askpass");
-
 QString findProgram(const QString &name)
 {
     return QStandardPaths::findExecutable(name);
@@ -56,16 +53,9 @@ bool SshAgentClient::isBusy() const
     return m_busy;
 }
 
-QString SshAgentClient::askpassProgram()
+void SshAgentClient::setAskpassProgram(const QString &program)
 {
-    const QString configured = QFile::decodeName(qgetenv("SSH_ASKPASS"));
-    if (!configured.isEmpty()) {
-        return QFileInfo(configured).isAbsolute() ? configured : findProgram(configured);
-    }
-    if (QFileInfo(s_defaultAskpass).isExecutable()) {
-        return s_defaultAskpass;
-    }
-    return findProgram(QStringLiteral("ksshaskpass"));
+    m_askpassProgram = program;
 }
 
 void SshAgentClient::refresh(const QStringList &files)
@@ -153,16 +143,14 @@ bool SshAgentClient::addKey(const QString &path)
     // the app may have been started from.
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
     environment.insert(QStringLiteral("SSH_ASKPASS_REQUIRE"), QStringLiteral("force"));
-    const QString askpass = askpassProgram();
-    if (environment.value(QStringLiteral("SSH_ASKPASS")).isEmpty() && !askpass.isEmpty()) {
-        environment.insert(QStringLiteral("SSH_ASKPASS"), askpass);
+    if (!m_askpassProgram.isEmpty()) {
+        environment.insert(QStringLiteral("SSH_ASKPASS"), m_askpassProgram);
+        environment.insert(QString::fromLatin1(AskpassModeVariable), QStringLiteral("1"));
     }
 
-    const QString note =
-        askpass.isEmpty() ? i18n("No askpass program, such as ksshaskpass, was found, so keys protected by a passphrase can't be loaded.") : QString();
     m_busy = true;
-    run(sshAdd, {path}, NoTimeout, environment, [this, note](const SshCommandResult &result) {
-        finishAction(result, i18n("The key was not loaded."), note);
+    run(sshAdd, {path}, NoTimeout, environment, [this](const SshCommandResult &result) {
+        finishAction(result, i18n("The key was not loaded."));
     });
     return true;
 }
@@ -191,12 +179,12 @@ bool SshAgentClient::removeKeys(const QList<QByteArray> &publicKeyLines)
 
     m_busy = true;
     run(sshAdd, arguments, RemoveTimeoutMs, QProcessEnvironment::systemEnvironment(), [this, directory](const SshCommandResult &result) {
-        finishAction(result, i18n("The key was not removed."), QString());
+        finishAction(result, i18n("The key was not removed."));
     });
     return true;
 }
 
-void SshAgentClient::finishAction(const SshCommandResult &result, const QString &fallbackMessage, const QString &note)
+void SshAgentClient::finishAction(const SshCommandResult &result, const QString &fallbackMessage)
 {
     m_busy = false;
     qCDebug(KSSHM_AGENT) << "ssh-add exited with" << result.exitCode;
@@ -214,9 +202,6 @@ void SshAgentClient::finishAction(const SshCommandResult &result, const QString 
     }
     if (message.isEmpty()) {
         message = fallbackMessage;
-    }
-    if (!note.isEmpty()) {
-        message += QLatin1Char(' ') + note;
     }
     Q_EMIT actionFinished(false, message);
 }

@@ -43,7 +43,7 @@ include(ECMAddTests)
 include(FeatureSummary)
 
 find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Core Network Widgets Test)
-find_package(KF${KF_MAJOR_VERSION} ${KF_MIN_VERSION} REQUIRED COMPONENTS Parts CoreAddons I18n)
+find_package(KF${KF_MAJOR_VERSION} ${KF_MIN_VERSION} REQUIRED COMPONENTS Parts CoreAddons I18n WidgetsAddons)
 
 add_definitions(
     -DTRANSLATION_DOMAIN=\"konsole-ssh-manager\"

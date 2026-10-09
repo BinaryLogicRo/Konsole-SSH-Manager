@@ -2,6 +2,7 @@
 #include "agentpaneltext.h"
 
 #include <QAction>
+#include <QCoreApplication>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -51,6 +52,9 @@ AgentPanel::AgentPanel(QWidget *parent)
     , m_errorLabel(new QLabel(m_errorBar))
     , m_view(new QTreeWidget(this))
 {
+    // The app's own executable asks for passphrases (see askpass.h).
+    m_client->setAskpassProgram(QCoreApplication::applicationFilePath());
+
     m_loadAction = new QAction(QIcon::fromTheme(QStringLiteral("list-add")), i18nc("@action", "&Load"), this);
     m_loadAction->setToolTip(i18nc("@info:tooltip", "Load the selected key into the SSH agent"));
     m_removeAction = new QAction(QIcon::fromTheme(QStringLiteral("list-remove")), i18nc("@action", "&Remove"), this);

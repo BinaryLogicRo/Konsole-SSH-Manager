@@ -28,7 +28,7 @@ The app's sessions authenticate with SSH keys through the SSH agent (see [Securi
 - Use the agent from the app's environment, which belongs to the desktop session. The ssh sessions in the app's tabs use the same agent. Never start, stop, lock, or reconfigure an agent.
 - Use `ssh-add` to list, load, and remove keys, and `ssh-keygen` to read a key file's fingerprint. Run them directly with an argument list (never through a shell) and asynchronously, so the UI never blocks while waiting, for example, for a passphrase. Pass key files as absolute paths, so a file name is never read as an option.
 - Match loaded keys to key files by fingerprint, never by comment or file name.
-- **Passphrases:** the app never asks for, sees, or stores a passphrase. `ssh-add` asks for it through the desktop's askpass program (`ksshaskpass` on Plasma). If no askpass program is available, the panel says that passphrase-protected keys can't be loaded.
+- **Passphrases:** the app is `ssh-add`'s askpass program, replacing the desktop's (such as `ksshaskpass`). It only shows a passphrase prompt that never offers to remember the passphrase, and passes the answer to `ssh-add`. The app never stores or logs a passphrase.
 - Never read, copy, or log the contents of private keys. Store the paths of added keys in the app settings, never in the SSH configuration or its metadata.
 - The agent is shared by the whole desktop session: changes made in the panel affect other programs, and changes made by other programs appear after a refresh.
 - Keep reading `ssh-add` and `ssh-keygen` output separate from the UI code, and make it testable without a display and without the user's agent (see [Testing and CI](11-testing.md)).

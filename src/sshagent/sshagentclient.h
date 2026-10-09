@@ -15,7 +15,8 @@
 // ssh-add, and reads key file fingerprints with ssh-keygen. Programs are run
 // asynchronously with an argument list, never through a shell. The agent
 // itself is never started, stopped, locked or reconfigured, and passphrases
-// never pass through the app: ssh-add asks for them through askpass.
+// never pass through this class: ssh-add asks for them through the askpass
+// program set with setAskpassProgram().
 class SshAgentClient : public QObject
 {
     Q_OBJECT
@@ -52,9 +53,11 @@ public:
     bool removeKeys(const QList<QByteArray> &publicKeyLines);
     bool isBusy() const;
 
-    // The askpass program ssh-add will use: $SSH_ASKPASS, OpenSSH's default,
-    // or ksshaskpass. Empty if there is none.
-    static QString askpassProgram();
+    // Environment variable that tells the askpass program ssh-add started it.
+    static constexpr const char *AskpassModeVariable = "KONSOLE_SSH_MANAGER_ASKPASS";
+    // The program ssh-add runs to ask for passphrases; it replaces $SSH_ASKPASS.
+    // When empty, ssh-add uses the environment's askpass.
+    void setAskpassProgram(const QString &program);
 
 Q_SIGNALS:
     void refreshed(const SshAgentClient::Snapshot &snapshot);
@@ -63,9 +66,9 @@ Q_SIGNALS:
 private:
     using Callback = std::function<void(const SshCommandResult &)>;
     void run(const QString &program, const QStringList &arguments, int timeoutMs, const QProcessEnvironment &environment, const Callback &done);
-    // `note` is added to the message of a failed action.
-    void finishAction(const SshCommandResult &result, const QString &fallbackMessage, const QString &note);
+    void finishAction(const SshCommandResult &result, const QString &fallbackMessage);
 
+    QString m_askpassProgram;
     quint64 m_generation = 0;
     bool m_busy = false;
 };

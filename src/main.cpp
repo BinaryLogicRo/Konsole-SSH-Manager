@@ -1,3 +1,4 @@
+#include "askpass.h"
 #include "mainwindow.h"
 
 #include <QApplication>
@@ -32,6 +33,11 @@ int main(int argc, char **argv)
     // The installed icon (hicolor theme) wins; the embedded copy covers running from the build directory.
     QApplication::setWindowIcon(
         QIcon::fromTheme(QStringLiteral("ro.binarylogic.konsole-ssh-manager"), QIcon(QStringLiteral(":/icons/konsole-ssh-manager.svg"))));
+
+    // ssh-add starts the app as its askpass program to ask for a key's passphrase.
+    if (Askpass::isRequested()) {
+        return Askpass::run(app.arguments().value(1));
+    }
 
     QCommandLineParser parser;
     about.setupCommandLine(&parser);

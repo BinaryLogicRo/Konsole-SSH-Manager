@@ -30,6 +30,7 @@ add_library(konsolesshmanager_ui STATIC
     hostsidebar.cpp
     agentpanel.cpp
     agentpaneltext.cpp
+    askpass.cpp
     hostoperations.cpp
     terminaltab.cpp
     models/hosttreemodel.cpp
@@ -42,6 +43,7 @@ target_link_libraries(konsolesshmanager_ui PUBLIC
     KF${KF_MAJOR_VERSION}::Parts
     KF${KF_MAJOR_VERSION}::CoreAddons
     KF${KF_MAJOR_VERSION}::I18n
+    KF${KF_MAJOR_VERSION}::WidgetsAddons
 )
 
 add_executable(konsole-ssh-manager

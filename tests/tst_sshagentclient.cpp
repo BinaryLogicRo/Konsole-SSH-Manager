@@ -105,7 +105,8 @@ private Q_SLOTS:
 
         QFile askpass(keyPath(QStringLiteral("askpass")));
         QVERIFY(askpass.open(QIODevice::WriteOnly));
-        askpass.write("#!/bin/sh\necho 'test passphrase'\n");
+        // Answers only when started as the client's askpass program.
+        askpass.write("#!/bin/sh\n[ \"$KONSOLE_SSH_MANAGER_ASKPASS\" = 1 ] && echo 'test passphrase'\n");
         askpass.close();
         QVERIFY(askpass.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner));
 
@@ -116,7 +117,8 @@ private Q_SLOTS:
 
         qputenv("SSH_AUTH_SOCK", m_socket);
         qunsetenv("SSH_AGENT_PID");
-        qputenv("SSH_ASKPASS", QFile::encodeName(askpass.fileName()));
+        // The client's own askpass program must replace the environment's.
+        qputenv("SSH_ASKPASS", "/bin/false");
     }
 
     void cleanupTestCase()
@@ -176,6 +178,7 @@ private Q_SLOTS:
     void asksForPassphraseThroughAskpass()
     {
         SshAgentClient client;
+        client.setAskpassProgram(keyPath(QStringLiteral("askpass")));
         auto result = runAction(client, [&] {
             return client.addKey(keyPath(QStringLiteral("locked")));
         });
