@@ -18,6 +18,7 @@
 #include <QVBoxLayout>
 
 #include <KLocalizedString>
+#include <KPasswordDialog>
 
 #include <optional>
 
@@ -52,7 +53,7 @@ AgentPanel::AgentPanel(QWidget *parent)
     , m_errorLabel(new QLabel(m_errorBar))
     , m_view(new QTreeWidget(this))
 {
-    // The app's own executable asks for passphrases (see askpass.h).
+    // The app's own executable asks for passphrases (see sshagent/askpass.h).
     m_client->setAskpassProgram(QCoreApplication::applicationFilePath());
 
     m_loadAction = new QAction(QIcon::fromTheme(QStringLiteral("list-add")), i18nc("@action", "&Load"), this);
@@ -124,6 +125,7 @@ AgentPanel::AgentPanel(QWidget *parent)
     connect(dismissButton, &QToolButton::clicked, m_errorBar, &QWidget::hide);
     connect(m_client, &SshAgentClient::refreshed, this, &AgentPanel::onRefreshed);
     connect(m_client, &SshAgentClient::actionFinished, this, &AgentPanel::onActionFinished);
+    connect(m_client, &SshAgentClient::passphraseRequested, this, &AgentPanel::askPassphrase);
     connect(m_view, &QTreeWidget::currentItemChanged, this, &AgentPanel::updateActions);
     connect(m_view, &QTreeWidget::itemDoubleClicked, this, [this] {
         if (m_loadAction->isEnabled()) {
@@ -193,6 +195,9 @@ void AgentPanel::onRefreshed(const SshAgentClient::Snapshot &snapshot)
 
 void AgentPanel::onActionFinished(bool succeeded, const QString &message)
 {
+    if (m_passphraseDialog) {
+        m_passphraseDialog->reject(); // ssh-add no longer waits for it
+    }
     m_busyText.clear();
     if (succeeded) {
         m_errorBar->hide();
@@ -202,6 +207,27 @@ void AgentPanel::onActionFinished(bool succeeded, const QString &message)
     updateStatus();
     updateActions();
     refresh();
+}
+
+void AgentPanel::askPassphrase(const QString &prompt)
+{
+    // Window-modal, so it stays in front of the main window, and clicking the
+    // main window doesn't take the focus away from it. No ShowKeepPassword
+    // flag: passphrases are never remembered.
+    auto *dialog = new KPasswordDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowModality(Qt::WindowModal);
+    dialog->setWindowTitle(i18nc("@title:window", "SSH Key Passphrase"));
+    dialog->setPrompt(prompt); // ssh-add's prompt names the key file
+    connect(dialog, &QDialog::finished, this, [this, dialog](int result) {
+        if (result == QDialog::Accepted) {
+            m_client->answerPassphrase(dialog->password());
+        } else {
+            m_client->declinePassphrase();
+        }
+    });
+    m_passphraseDialog = dialog;
+    dialog->open();
 }
 
 void AgentPanel::rebuild()

@@ -1,8 +1,11 @@
 #include "sshagent/sshagentclient.h"
 
+#include <QDataStream>
 #include <QFile>
 #include <QFileInfo>
+#include <QLocalSocket>
 #include <QProcess>
+#include <QSignalSpy>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QTest>
@@ -10,8 +13,8 @@
 #include <optional>
 
 // Runs SshAgentClient against a private ssh-agent in a temporary directory,
-// with throwaway keys and a fake askpass program. The user's own agent, keys
-// and ~/.ssh are never used.
+// with throwaway keys and the askpass relay in place of the app. The user's own
+// agent, keys and ~/.ssh are never used.
 class TestSshAgentClient : public QObject
 {
     Q_OBJECT
@@ -103,13 +106,6 @@ private Q_SLOTS:
         generateKey(QStringLiteral("plain"), QString());
         generateKey(QStringLiteral("locked"), QStringLiteral("test passphrase"));
 
-        QFile askpass(keyPath(QStringLiteral("askpass")));
-        QVERIFY(askpass.open(QIODevice::WriteOnly));
-        // Answers only when started as the client's askpass program.
-        askpass.write("#!/bin/sh\n[ \"$KONSOLE_SSH_MANAGER_ASKPASS\" = 1 ] && echo 'test passphrase'\n");
-        askpass.close();
-        QVERIFY(askpass.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner));
-
         m_socket = QFile::encodeName(keyPath(QStringLiteral("agent.sock")));
         m_agent.start(QStringLiteral("ssh-agent"), {QStringLiteral("-D"), QStringLiteral("-a"), QFile::decodeName(m_socket)});
         QVERIFY(m_agent.waitForStarted(5000));
@@ -178,12 +174,21 @@ private Q_SLOTS:
     void asksForPassphraseThroughAskpass()
     {
         SshAgentClient client;
-        client.setAskpassProgram(keyPath(QStringLiteral("askpass")));
+        client.setAskpassProgram(QStringLiteral(ASKPASS_RELAY));
+        // A wrong passphrase first: ssh-add asks again.
+        QStringList prompts;
+        connect(&client, &SshAgentClient::passphraseRequested, this, [&](const QString &prompt) {
+            prompts.append(prompt);
+            client.answerPassphrase(prompts.size() == 1 ? QStringLiteral("wrong") : QStringLiteral("test passphrase"));
+        });
+        const QString locked = keyPath(QStringLiteral("locked"));
         auto result = runAction(client, [&] {
-            return client.addKey(keyPath(QStringLiteral("locked")));
+            return client.addKey(locked);
         });
         QVERIFY(result);
         QVERIFY2(result->succeeded, qPrintable(result->message));
+        QCOMPARE(prompts.size(), 2);
+        QVERIFY2(prompts.first().contains(locked), qPrintable(prompts.first()));
 
         const SshAgentClient::Snapshot snapshot = refresh(client, {});
         QCOMPARE(snapshot.keys.size(), 1);
@@ -193,6 +198,57 @@ private Q_SLOTS:
             return client.removeKeys({snapshot.keys.first().publicKeyLine});
         });
         QVERIFY(result && result->succeeded);
+    }
+
+    void declinedPassphraseLoadsNothing()
+    {
+        SshAgentClient client;
+        client.setAskpassProgram(QStringLiteral(ASKPASS_RELAY));
+        int prompts = 0;
+        connect(&client, &SshAgentClient::passphraseRequested, this, [&] {
+            ++prompts;
+            client.declinePassphrase();
+        });
+        const auto result = runAction(client, [&] {
+            return client.addKey(keyPath(QStringLiteral("locked")));
+        });
+        QVERIFY(result);
+        QVERIFY(!result->succeeded);
+        QCOMPARE(prompts, 1);
+        QVERIFY(refresh(client, {}).keys.isEmpty());
+    }
+
+    void askpassServerRefusesOtherProcesses()
+    {
+        AskpassServer server;
+        QVERIFY(server.listen());
+        QSignalSpy requested(&server, &AskpassServer::passphraseRequested);
+
+        // Not a child of the requester.
+        server.setRequesterPid(QCoreApplication::applicationPid());
+        QLocalSocket socket;
+        socket.connectToServer(server.serverName());
+        QVERIFY(socket.waitForConnected(5000));
+        QDataStream stream(&socket);
+        stream << QStringLiteral("Enter passphrase:");
+        socket.flush();
+        QTRY_COMPARE_WITH_TIMEOUT(socket.state(), QLocalSocket::UnconnectedState, 5000);
+        QCOMPARE(requested.count(), 0);
+
+        // A child of the requester may ask.
+        QProcess relay;
+        QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+        environment.insert(QString::fromLatin1(Askpass::ServerVariable), server.serverName());
+        relay.setProcessEnvironment(environment);
+        relay.start(QStringLiteral(ASKPASS_RELAY), {QStringLiteral("Enter passphrase:")});
+        QVERIFY(relay.waitForStarted(5000));
+        QTRY_COMPARE_WITH_TIMEOUT(requested.count(), 1, 10000);
+        QCOMPARE(requested.first().first().toString(), QStringLiteral("Enter passphrase:"));
+        server.answer(QStringLiteral("secret"));
+        // The server needs the event loop to send the answer.
+        QTRY_COMPARE_WITH_TIMEOUT(relay.state(), QProcess::NotRunning, 10000);
+        QCOMPARE(relay.exitCode(), 0);
+        QCOMPARE(relay.readAllStandardOutput(), QByteArray("secret\n"));
     }
 
     void reportsSshAddErrors()

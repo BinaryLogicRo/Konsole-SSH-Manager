@@ -13,3 +13,8 @@ target_compile_definitions(tst_sshconfigparser PRIVATE TEST_DATA_DIR="${CMAKE_CU
 # End-to-end tests of the helper binary, run against a fake ssh placed first in PATH.
 target_compile_definitions(tst_sshsession PRIVATE SSH_SESSION_HELPER="$<TARGET_FILE:konsole-ssh-session>")
 add_dependencies(tst_sshsession konsole-ssh-session)
+# The askpass relay, run by ssh-add in place of the app.
+add_executable(askpassrelay askpassrelay.cpp)
+target_link_libraries(askpassrelay PRIVATE konsolesshmanager_core)
+target_compile_definitions(tst_sshagentclient PRIVATE ASKPASS_RELAY="$<TARGET_FILE:askpassrelay>")
+add_dependencies(tst_sshagentclient askpassrelay)

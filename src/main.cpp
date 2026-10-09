@@ -1,5 +1,5 @@
-#include "askpass.h"
 #include "mainwindow.h"
+#include "sshagent/askpass.h"
 
 #include <QApplication>
 #include <QCommandLineParser>
@@ -12,6 +12,13 @@
 
 int main(int argc, char **argv)
 {
+    // ssh-add starts the app as its askpass program to ask for a key's
+    // passphrase; the running app shows the prompt, so this needs no window.
+    if (Askpass::isRequested()) {
+        QCoreApplication app(argc, argv);
+        return Askpass::run(app.arguments().value(1));
+    }
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     // Qt 6 enables high-DPI scaling by default; Qt 5 needs it before QApplication exists.
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -33,11 +40,6 @@ int main(int argc, char **argv)
     // The installed icon (hicolor theme) wins; the embedded copy covers running from the build directory.
     QApplication::setWindowIcon(
         QIcon::fromTheme(QStringLiteral("ro.binarylogic.konsole-ssh-manager"), QIcon(QStringLiteral(":/icons/konsole-ssh-manager.svg"))));
-
-    // ssh-add starts the app as its askpass program to ask for a key's passphrase.
-    if (Askpass::isRequested()) {
-        return Askpass::run(app.arguments().value(1));
-    }
 
     QCommandLineParser parser;
     about.setupCommandLine(&parser);

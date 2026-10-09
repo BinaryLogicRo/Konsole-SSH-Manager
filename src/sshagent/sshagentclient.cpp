@@ -34,7 +34,9 @@ bool isUsableKeyPath(const QString &path)
 
 SshAgentClient::SshAgentClient(QObject *parent)
     : QObject(parent)
+    , m_askpass(new AskpassServer(this))
 {
+    connect(m_askpass, &AskpassServer::passphraseRequested, this, &SshAgentClient::passphraseRequested);
 }
 
 SshAgentClient::~SshAgentClient()
@@ -56,6 +58,16 @@ bool SshAgentClient::isBusy() const
 void SshAgentClient::setAskpassProgram(const QString &program)
 {
     m_askpassProgram = program;
+}
+
+void SshAgentClient::answerPassphrase(const QString &passphrase)
+{
+    m_askpass->answer(passphrase);
+}
+
+void SshAgentClient::declinePassphrase()
+{
+    m_askpass->decline();
 }
 
 void SshAgentClient::refresh(const QStringList &files)
@@ -144,14 +156,20 @@ bool SshAgentClient::addKey(const QString &path)
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
     environment.insert(QStringLiteral("SSH_ASKPASS_REQUIRE"), QStringLiteral("force"));
     if (!m_askpassProgram.isEmpty()) {
+        if (!m_askpass->listen()) {
+            return false;
+        }
         environment.insert(QStringLiteral("SSH_ASKPASS"), m_askpassProgram);
-        environment.insert(QString::fromLatin1(AskpassModeVariable), QStringLiteral("1"));
+        environment.insert(QString::fromLatin1(Askpass::ServerVariable), m_askpass->serverName());
     }
 
     m_busy = true;
-    run(sshAdd, {path}, NoTimeout, environment, [this](const SshCommandResult &result) {
+    const QProcess *process = run(sshAdd, {path}, NoTimeout, environment, [this](const SshCommandResult &result) {
+        m_askpass->close();
         finishAction(result, i18n("The key was not loaded."));
     });
+    // Only the askpass programs ssh-add starts may ask for a passphrase.
+    m_askpass->setRequesterPid(process->processId());
     return true;
 }
 
@@ -206,7 +224,7 @@ void SshAgentClient::finishAction(const SshCommandResult &result, const QString 
     Q_EMIT actionFinished(false, message);
 }
 
-void SshAgentClient::run(const QString &program, const QStringList &arguments, int timeoutMs, const QProcessEnvironment &environment, const Callback &done)
+QProcess *SshAgentClient::run(const QString &program, const QStringList &arguments, int timeoutMs, const QProcessEnvironment &environment, const Callback &done)
 {
     auto *process = new QProcess(this);
     process->setProcessEnvironment(environment);
@@ -236,4 +254,5 @@ void SshAgentClient::run(const QString &program, const QStringList &arguments, i
         });
     }
     process->start(program, arguments);
+    return process;
 }

@@ -3,8 +3,10 @@
 #include "sshagent/sshagentclient.h"
 #include "sshagent/sshkeylist.h"
 
+#include <QPointer>
 #include <QWidget>
 
+class KPasswordDialog;
 class QAction;
 class QLabel;
 class QTreeWidget;
@@ -34,6 +36,7 @@ private:
     void scheduleRefresh();
     void onRefreshed(const SshAgentClient::Snapshot &snapshot);
     void onActionFinished(bool succeeded, const QString &message);
+    void askPassphrase(const QString &prompt);
     void rebuild();
     void updateStatus();
     void updateActions();
@@ -54,6 +57,7 @@ private:
     QWidget *m_errorBar = nullptr;
     QLabel *m_errorLabel = nullptr;
     QTreeWidget *m_view = nullptr;
+    QPointer<KPasswordDialog> m_passphraseDialog;
 
     QAction *m_loadAction = nullptr;
     QAction *m_removeAction = nullptr;
