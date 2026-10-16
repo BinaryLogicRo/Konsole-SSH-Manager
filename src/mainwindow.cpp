@@ -21,7 +21,6 @@
 #include <QSettings>
 #include <QSplitter>
 #include <QStandardPaths>
-#include <QStatusBar>
 #include <QStyle>
 #include <QTabBar>
 #include <QTabWidget>
@@ -81,9 +80,20 @@ MainWindow::MainWindow(const SshPaths &paths, QWidget *parent)
     bannerLayout->addWidget(bannerLabel, 1);
     bannerLayout->addWidget(bannerButton);
 
+    m_loadErrorBanner = new QWidget(this);
+    m_loadErrorLabel = new QLabel(m_loadErrorBanner);
+    m_loadErrorLabel->setTextFormat(Qt::PlainText);
+    m_loadErrorLabel->setWordWrap(true);
+    auto *loadErrorIcon = new QLabel(m_loadErrorBanner);
+    loadErrorIcon->setPixmap(QIcon::fromTheme(QStringLiteral("dialog-warning")).pixmap(22, 22));
+    auto *loadErrorLayout = new QHBoxLayout(m_loadErrorBanner);
+    loadErrorLayout->addWidget(loadErrorIcon);
+    loadErrorLayout->addWidget(m_loadErrorLabel, 1);
+
     auto *central = new QWidget(this);
     auto *centralLayout = new QVBoxLayout(central);
     centralLayout->setContentsMargins(0, 0, 0, 0);
+    centralLayout->addWidget(m_loadErrorBanner);
     centralLayout->addWidget(m_includeBanner);
     centralLayout->addWidget(m_splitter, 1);
     setCentralWidget(central);
@@ -258,9 +268,8 @@ void MainWindow::onHostsChanged()
         return !host.readOnly;
     });
     m_includeBanner->setVisible(hasManagedHosts && !m_store->isManagedFileIncluded());
-    if (!m_store->loadErrors().isEmpty()) {
-        statusBar()->showMessage(m_store->loadErrors().join(QLatin1Char(' ')));
-    }
+    m_loadErrorLabel->setText(m_store->loadErrors().join(QLatin1Char('\n')));
+    m_loadErrorBanner->setVisible(!m_store->loadErrors().isEmpty());
 
     m_operations->checkOpenDialog();
     updateActions();
@@ -369,7 +378,6 @@ void MainWindow::onSessionFinished(TerminalTab *tab)
     if (index >= 0) {
         m_tabs->removeTab(index);
     }
-    statusBar()->showMessage(i18n("Session to %1 ended.", tab->alias()), 5000);
     tab->deleteLater();
 }
 

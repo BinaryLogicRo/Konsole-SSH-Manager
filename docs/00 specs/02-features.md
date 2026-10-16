@@ -29,6 +29,7 @@ What the app offers its users. Keep this list current: update it whenever a user
 - Preserves comments, formatting, and unknown options when saving.
 - Saves safely, keeps the files private to the user, and makes a backup before changing a file.
 - Picks up changes made by other programs automatically, and warns instead of overwriting when a host being edited changed meanwhile.
+- Shows a warning above the main area when a configuration file can't be read, until the problem is fixed.
 
 ### SSH sessions
 

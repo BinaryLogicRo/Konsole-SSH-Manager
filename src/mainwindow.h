@@ -53,6 +53,8 @@ private:
     QSplitter *m_sidebarSplitter = nullptr; // host sidebar above the agent panel
     AgentPanel *m_agentPanel = nullptr;
     QWidget *m_includeBanner = nullptr;
+    QWidget *m_loadErrorBanner = nullptr; // SSH config files that couldn't be read
+    QLabel *m_loadErrorLabel = nullptr;
     HostOperations *m_operations = nullptr;
     SessionFailureListener *m_sessionFailures = nullptr;
 
