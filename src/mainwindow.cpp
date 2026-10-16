@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "agentpanel.h"
+#include "compat.h"
 #include "dialogs/effectivesettingsdialog.h"
 #include "hostoperations.h"
 #include "hostsidebar.h"
@@ -109,6 +110,7 @@ MainWindow::MainWindow(const SshPaths &paths, QWidget *parent)
     connect(m_tabs, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
     connect(m_tabs, &QTabWidget::currentChanged, this, &MainWindow::updateTabCloseButtons);
     connect(m_tabs->tabBar(), &QTabBar::tabMoved, this, &MainWindow::updateTabCloseButtons);
+    m_tabs->tabBar()->installEventFilter(this);
 
     // Session helpers inherit the socket's path, so a tab whose ssh fails can offer to retry.
     if (m_sessionFailures->listen(QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation))) {
@@ -142,6 +144,22 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
     saveSettings();
     event->accept();
+}
+
+// A middle click on a tab closes it, like its close button.
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonRelease && watched == m_tabs->tabBar()) {
+        const auto *mouseEvent = static_cast<QMouseEvent *>(event);
+        if (mouseEvent->button() == Qt::MiddleButton) {
+            const int index = m_tabs->tabBar()->tabAt(Compat::mousePosition(mouseEvent));
+            if (index >= 0) {
+                closeTab(index);
+                return true;
+            }
+        }
+    }
+    return QMainWindow::eventFilter(watched, event);
 }
 
 void MainWindow::setupActions()

@@ -3,6 +3,8 @@
 // All Qt5/Qt6 and KF5/KF6 differences live here. Everything else in the code
 // base must be version-neutral.
 
+#include <QMouseEvent>
+#include <QPoint>
 #include <QString>
 #include <QtGlobal>
 
@@ -26,5 +28,15 @@ inline QString konsolePartPluginId()
 inline QString konsolePartFallbackPluginId()
 {
     return QStringLiteral("konsolepart");
+}
+
+// Position of a mouse event in the receiving widget's coordinates.
+inline QPoint mousePosition(const QMouseEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return event->position().toPoint();
+#else
+    return event->pos();
+#endif
 }
 }
