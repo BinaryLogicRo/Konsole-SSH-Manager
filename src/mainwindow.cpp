@@ -11,6 +11,7 @@
 #include "terminaltab.h"
 
 #include <QAction>
+#include <QApplication>
 #include <QCloseEvent>
 #include <QFile>
 #include <QHBoxLayout>
@@ -132,6 +133,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    // The window's close button only minimizes it. File > Quit quits, and so does
+    // the end of the desktop session, which an ignored close would cancel.
+    if (!m_quitRequested && !qApp->isSavingSession()) {
+        event->ignore();
+        showMinimized();
+        return;
+    }
     if (m_tabs->count() > 0) {
         const auto answer = QMessageBox::question(
             this,
@@ -222,7 +230,12 @@ void MainWindow::setupActions()
 
     m_quitAction = new QAction(QIcon::fromTheme(QStringLiteral("application-exit")), i18nc("@action", "&Quit"), this);
     m_quitAction->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+Q")));
-    connect(m_quitAction, &QAction::triggered, this, &QWidget::close);
+    connect(m_quitAction, &QAction::triggered, this, [this] {
+        m_quitRequested = true;
+        if (!close()) { // the user kept the open sessions
+            m_quitRequested = false;
+        }
+    });
 
     m_aboutAction = new QAction(QIcon::fromTheme(QStringLiteral("help-about")), i18nc("@action", "&About Konsole SSH Manager"), this);
     connect(m_aboutAction, &QAction::triggered, this, &MainWindow::showAbout);

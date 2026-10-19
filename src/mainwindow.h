@@ -73,4 +73,6 @@ private:
     QAction *m_previousTabAction = nullptr;
     QAction *m_quitAction = nullptr;
     QAction *m_aboutAction = nullptr;
+
+    bool m_quitRequested = false; // set by File > Quit, so closing quits instead of minimizing
 };
