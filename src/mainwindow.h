@@ -2,6 +2,7 @@
 
 #include "sshconfig/hoststore.h"
 
+#include <QList>
 #include <QMainWindow>
 
 class AgentPanel;
@@ -40,6 +41,8 @@ private:
 
     void setSidebarOnRight(bool onRight);
     void closeTab(int index);
+    void removeTerminalTab(int index);
+    void onCurrentTabChanged(int index);
     void updateTabCloseButtons();
     void onSessionFinished(TerminalTab *tab);
     void onSessionFailed(qint64 helperPid);
@@ -58,6 +61,7 @@ private:
     QLabel *m_loadErrorLabel = nullptr;
     HostOperations *m_operations = nullptr;
     SessionFailureListener *m_sessionFailures = nullptr;
+    QList<QWidget *> m_tabHistory; // tabs, most recently shown first
 
     QAction *m_addAction = nullptr;
     QAction *m_connectAction = nullptr;

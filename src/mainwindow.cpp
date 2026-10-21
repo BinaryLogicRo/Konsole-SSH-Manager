@@ -109,7 +109,7 @@ MainWindow::MainWindow(const SshPaths &paths, QWidget *parent)
     connect(m_sidebar, &HostSidebar::currentHostChanged, this, &MainWindow::updateActions);
     connect(m_sidebar, &HostSidebar::contextMenuRequested, this, &MainWindow::showContextMenu);
     connect(m_tabs, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
-    connect(m_tabs, &QTabWidget::currentChanged, this, &MainWindow::updateTabCloseButtons);
+    connect(m_tabs, &QTabWidget::currentChanged, this, &MainWindow::onCurrentTabChanged);
     connect(m_tabs->tabBar(), &QTabBar::tabMoved, this, &MainWindow::updateTabCloseButtons);
     m_tabs->tabBar()->installEventFilter(this);
 
@@ -129,6 +129,7 @@ MainWindow::~MainWindow()
     for (TerminalTab *tab : tabs) {
         disconnect(tab, nullptr, this, nullptr);
     }
+    disconnect(m_tabs, nullptr, this, nullptr);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -383,7 +384,7 @@ void MainWindow::setSidebarOnRight(bool onRight)
 void MainWindow::closeTab(int index)
 {
     auto *tab = qobject_cast<TerminalTab *>(m_tabs->widget(index));
-    m_tabs->removeTab(index);
+    removeTerminalTab(index);
     if (tab) {
         disconnect(tab, nullptr, this, nullptr);
         tab->deleteLater();
@@ -403,11 +404,41 @@ void MainWindow::updateTabCloseButtons()
     }
 }
 
+// Closing the visible tab shows the tab used before it, rather than its neighbour,
+// and moves the keyboard focus there if the closed tab had it.
+void MainWindow::removeTerminalTab(int index)
+{
+    QWidget *closing = m_tabs->widget(index);
+    if (!closing) {
+        return;
+    }
+    m_tabHistory.removeAll(closing);
+    if (index == m_tabs->currentIndex() && !m_tabHistory.isEmpty()) {
+        QWidget *focus = QApplication::focusWidget();
+        const bool hadFocus = !focus || closing->isAncestorOf(focus);
+        m_tabs->setCurrentWidget(m_tabHistory.first());
+        auto *previous = qobject_cast<TerminalTab *>(m_tabHistory.first());
+        if (hadFocus && previous) {
+            previous->focusTerminal();
+        }
+    }
+    m_tabs->removeTab(m_tabs->indexOf(closing));
+}
+
+void MainWindow::onCurrentTabChanged(int index)
+{
+    if (QWidget *current = m_tabs->widget(index)) {
+        m_tabHistory.removeAll(current);
+        m_tabHistory.prepend(current);
+    }
+    updateTabCloseButtons();
+}
+
 void MainWindow::onSessionFinished(TerminalTab *tab)
 {
     const int index = m_tabs->indexOf(tab);
     if (index >= 0) {
-        m_tabs->removeTab(index);
+        removeTerminalTab(index);
     }
     tab->deleteLater();
 }

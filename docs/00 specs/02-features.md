@@ -38,6 +38,7 @@ What the app offers its users. Keep this list current: update it whenever a user
 - Shows the host's color in its tab and its address in the tab's tooltip.
 - Tabs can be reordered and switched from the keyboard; the close button can be limited to the active tab.
 - Middle-clicking a tab closes it, like its close button.
+- Closing the active tab switches to the tab used before it.
 - Closes the tab after a normal logout.
 - When a connection fails or drops, keeps the tab open with ssh's error and offers Retry and Close Tab buttons.
 - Asks for confirmation before quitting with sessions still open.
