@@ -15,27 +15,27 @@ add_library(konsolesshmanager_core STATIC
     sshagent/sshkeylist.cpp
     sshagent/sshagentclient.cpp
     sshagent/askpass.cpp
-    sshsession.cpp
-    sessionfailurelistener.cpp
+    session/sshsession.cpp
+    session/sessionfailurelistener.cpp
 )
 target_include_directories(konsolesshmanager_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(konsolesshmanager_core PUBLIC Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Network KF${KF_MAJOR_VERSION}::I18n)
 
 # Run inside each terminal tab: starts `ssh <alias>` and keeps the tab open on failure.
-add_executable(konsole-ssh-session sshsessionmain.cpp)
+add_executable(konsole-ssh-session session/sshsessionmain.cpp)
 target_link_libraries(konsole-ssh-session PRIVATE konsolesshmanager_core)
 
-# The app's UI, shared by the app and the optional README screenshot tool (tools/screenshot).
+# The app's UI (everything under ui/), shared by the app and the optional README screenshot tool (tools/screenshot).
 add_library(konsolesshmanager_ui STATIC
-    mainwindow.cpp
-    hostsidebar.cpp
-    agentpanel.cpp
-    agentpaneltext.cpp
-    hostoperations.cpp
-    terminaltab.cpp
-    models/hosttreemodel.cpp
-    dialogs/hosteditdialog.cpp
-    dialogs/effectivesettingsdialog.cpp
+    ui/mainwindow.cpp
+    ui/hosts/hostsidebar.cpp
+    ui/hosts/hosttreemodel.cpp
+    ui/hosts/hostoperations.cpp
+    ui/hosts/hosteditdialog.cpp
+    ui/hosts/effectivesettingsdialog.cpp
+    ui/agent/agentpanel.cpp
+    ui/agent/agentpaneltext.cpp
+    ui/terminal/terminaltab.cpp
 )
 target_link_libraries(konsolesshmanager_ui PUBLIC
     konsolesshmanager_core

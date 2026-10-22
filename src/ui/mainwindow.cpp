@@ -1,14 +1,14 @@
 #include "mainwindow.h"
-#include "agentpanel.h"
 #include "compat.h"
-#include "dialogs/effectivesettingsdialog.h"
-#include "hostoperations.h"
-#include "hostsidebar.h"
-#include "models/hosttreemodel.h"
-#include "sessionfailurelistener.h"
+#include "session/sessionfailurelistener.h"
+#include "session/sshsession.h"
 #include "sshagent/sshkeylist.h"
-#include "sshsession.h"
-#include "terminaltab.h"
+#include "ui/agent/agentpanel.h"
+#include "ui/hosts/effectivesettingsdialog.h"
+#include "ui/hosts/hostoperations.h"
+#include "ui/hosts/hostsidebar.h"
+#include "ui/hosts/hosttreemodel.h"
+#include "ui/terminal/terminaltab.h"
 
 #include <QAction>
 #include <QApplication>

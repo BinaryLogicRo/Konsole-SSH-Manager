@@ -1,5 +1,5 @@
 #include "hostsidebar.h"
-#include "models/hosttreemodel.h"
+#include "hosttreemodel.h"
 
 #include <QKeyEvent>
 #include <QLineEdit>

@@ -1,5 +1,5 @@
-#include "mainwindow.h"
 #include "sshagent/askpass.h"
+#include "ui/mainwindow.h"
 
 #include <QApplication>
 #include <QCommandLineParser>

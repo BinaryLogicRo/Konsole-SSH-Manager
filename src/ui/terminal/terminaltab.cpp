@@ -1,7 +1,7 @@
 #include "terminaltab.h"
 #include "compat.h"
 #include "logging.h"
-#include "sshsession.h"
+#include "session/sshsession.h"
 
 #include <QCoreApplication>
 #include <QFileInfo>

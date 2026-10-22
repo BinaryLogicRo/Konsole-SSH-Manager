@@ -15,10 +15,10 @@
 // AI agents: this runs the app's UI, which the build spec forbids without the
 // user's explicit permission.
 
-#include "agentpanel.h"
-#include "mainwindow.h"
-#include "models/hosttreemodel.h"
 #include "sshconfig/hoststore.h"
+#include "ui/agent/agentpanel.h"
+#include "ui/hosts/hosttreemodel.h"
+#include "ui/mainwindow.h"
 
 #include <QApplication>
 #include <QDir>

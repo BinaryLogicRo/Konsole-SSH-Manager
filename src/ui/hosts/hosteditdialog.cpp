@@ -1,5 +1,5 @@
 #include "hosteditdialog.h"
-#include "models/hosttreemodel.h"
+#include "hosttreemodel.h"
 #include "sshconfig/sshkeywords.h"
 #include "sshconfig/sshresolver.h"
 

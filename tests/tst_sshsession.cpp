@@ -1,5 +1,5 @@
-#include "sessionfailurelistener.h"
-#include "sshsession.h"
+#include "session/sessionfailurelistener.h"
+#include "session/sshsession.h"
 
 #include <QCoreApplication>
 #include <QFile>

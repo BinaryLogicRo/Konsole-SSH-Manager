@@ -5,23 +5,22 @@ CMakeLists.txt         Build and install configuration
 Makefile               Developer commands
 src/
   main.cpp             App entry
-  mainwindow.cpp       Main window
-  hostsidebar.cpp      Host sidebar
-  agentpanel.cpp       SSH agent panel
-  terminaltab.cpp      Embedded terminal tabs
-  sshsessionmain.cpp   SSH helper entry
   compat.h             Qt/KF compatibility
+  logging.cpp          Logging categories
   sshconfig/           Config parsing, storage, and writing
   sshagent/            SSH agent and key file handling
-  models/              Host tree model
-  dialogs/             Host editing and effective settings
+  session/             SSH helper and the app's listener for failed sessions
+  ui/                  Main window
+    hosts/             Host sidebar, tree model, actions, and dialogs
+    agent/             SSH agent panel
+    terminal/          Embedded terminal tabs
 tests/                 Qt tests and SSH config fixtures
 data/                  Desktop entry and icon
 tools/                 Screenshot and social preview tools
 docs/                  Specs and images
 ```
 
-Keep UI code out of `sshconfig/` and `sshagent/`: those layers must be testable without a display.
+UI code lives only in `ui/` (and `main.cpp`). Everything else in `src/` must be testable without a display, so it must never use widgets or KParts. The one exception is `compat.h`, which stays at the top of `src/` (see [Version handling](05-version-handling.md)) and may be included only by UI code.
 
 ---
 

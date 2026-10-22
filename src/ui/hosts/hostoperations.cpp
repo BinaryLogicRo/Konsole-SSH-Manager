@@ -1,5 +1,5 @@
 #include "hostoperations.h"
-#include "dialogs/hosteditdialog.h"
+#include "hosteditdialog.h"
 #include "hostsidebar.h"
 
 #include <QMessageBox>
