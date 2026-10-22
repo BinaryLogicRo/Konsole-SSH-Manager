@@ -35,6 +35,7 @@
 #include <QTextDocument>
 #include <QTextEdit>
 #include <QTimer>
+#include <QToolBar>
 #include <QTreeWidget>
 
 #include <KAboutData>
@@ -312,6 +313,10 @@ int main(int argc, char **argv)
     MainWindow window(paths);
     if (!addDemoTabs(window, store)) {
         return 1;
+    }
+    // Hidden, as with View > Show Main Toolbar unchecked.
+    if (auto *toolBar = window.findChild<QToolBar *>(QStringLiteral("mainToolBar"))) {
+        toolBar->hide();
     }
     window.show();
 

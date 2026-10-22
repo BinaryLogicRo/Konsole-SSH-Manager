@@ -1,6 +1,6 @@
 # Demo SSH configuration used only to render the README screenshot.
 # Every name and address is fictional (RFC 2606 domains, RFC 5737 addresses).
-Include lab.conf
+Include config.d/*
 
 Host *
     ServerAliveInterval 60
