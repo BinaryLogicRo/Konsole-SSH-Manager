@@ -1,4 +1,5 @@
 #include "sshsession.h"
+#include "sshconfig/sshconfigparser.h"
 
 #include <QByteArray>
 #include <QFile>
@@ -7,6 +8,7 @@
 
 #include <KLocalizedString>
 
+#include <algorithm>
 #include <cerrno>
 #include <csignal>
 #include <spawn.h>
@@ -46,6 +48,85 @@ int SshSession::ChildResult::shellStatus() const
 QString SshSession::helperName()
 {
     return QStringLiteral("konsole-ssh-session");
+}
+
+QString SshSession::commandLine(const SshHost &host)
+{
+    const QString alias = host.alias();
+    QString hostName;
+    QString user;
+    QString port;
+    QString proxyJump;
+    // ssh refuses -J together with a ProxyCommand. As -o options the first of
+    // the two wins, as in a config file, so then both keep their place.
+    const bool hasProxyCommand = std::any_of(host.options.cbegin(), host.options.cend(), [](const SshOption &option) {
+        return option.keyword.compare(QLatin1String("ProxyCommand"), Qt::CaseInsensitive) == 0;
+    });
+    QStringList arguments{QStringLiteral("ssh")};
+    for (const SshOption &option : host.options) {
+        const auto is = [&option](QStringView keyword) {
+            return QStringView(option.keyword).compare(keyword, Qt::CaseInsensitive) == 0;
+        };
+        // OpenSSH uses the first value of these, and reads them unquoted.
+        const QString first = SshConfigParser::splitArguments(option.value).value(0);
+        if (is(u"HostName")) {
+            if (hostName.isEmpty()) {
+                // %h and %% are the only tokens HostName expands.
+                for (qsizetype i = 0; i < first.size(); ++i) {
+                    const QChar next = i + 1 < first.size() ? first.at(i + 1) : QChar();
+                    if (first.at(i) == QLatin1Char('%') && next == QLatin1Char('h')) {
+                        hostName += alias;
+                        ++i;
+                    } else if (first.at(i) == QLatin1Char('%') && next == QLatin1Char('%')) {
+                        hostName += QLatin1Char('%');
+                        ++i;
+                    } else {
+                        hostName += first.at(i);
+                    }
+                }
+            }
+        } else if (is(u"User")) {
+            user = user.isEmpty() ? first : user;
+        } else if (is(u"Port")) {
+            port = port.isEmpty() ? first : port;
+        } else if (is(u"ProxyJump") && !hasProxyCommand) {
+            proxyJump = proxyJump.isEmpty() ? first : proxyJump;
+        } else if (is(u"IdentityFile")) {
+            arguments << QStringLiteral("-i") << first; // every IdentityFile is tried, in order
+        } else {
+            // ssh reads an -o value like a config line, so it keeps its quoting.
+            QString value = option.value;
+            const qsizetype comment = SshConfigParser::trailingCommentStart(value);
+            if (comment >= 0) {
+                value.truncate(comment);
+            }
+            arguments << QStringLiteral("-o") << QStringLiteral("%1=%2").arg(option.keyword, value);
+        }
+    }
+    if (!port.isEmpty() && port.toInt() != 22) { // 22 is ssh's default
+        arguments << QStringLiteral("-p") << port;
+    }
+    if (!proxyJump.isEmpty()) {
+        arguments << QStringLiteral("-J") << proxyJump;
+    }
+    const QString destination = hostName.isEmpty() ? alias : hostName;
+    arguments << (user.isEmpty() ? destination : user + QLatin1Char('@') + destination);
+
+    const auto isPlain = [](QChar c) {
+        return c.isLetterOrNumber() || QStringView(u"._-@%+=:,/~").contains(c);
+    };
+    QStringList quoted;
+    for (const QString &argument : std::as_const(arguments)) {
+        if (!argument.isEmpty() && std::all_of(argument.begin(), argument.end(), isPlain)) {
+            quoted << argument;
+        } else {
+            // Inside single quotes the shell treats everything literally, except a quote itself.
+            QString escaped = argument;
+            escaped.replace(QLatin1Char('\''), QLatin1String("'\\''"));
+            quoted << QLatin1Char('\'') + escaped + QLatin1Char('\'');
+        }
+    }
+    return quoted.join(QLatin1Char(' '));
 }
 
 SshSession::ChildResult SshSession::runChild(const QStringList &arguments)

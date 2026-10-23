@@ -1,5 +1,7 @@
 #pragma once
 
+#include "sshconfig/sshhost.h"
+
 #include <QString>
 #include <QStringList>
 
@@ -31,6 +33,12 @@ struct ChildResult {
 
 // File name of the helper executable, installed next to the app binary.
 QString helperName();
+
+// An ssh command line that connects to `host` without relying on the SSH
+// configuration: Port, IdentityFile and ProxyJump become -p, -i and -J, User
+// and HostName the destination, and every other option of the host's own block
+// an -o option, in file order. Quoted so it can be pasted into a shell.
+QString commandLine(const SshHost &host);
 
 // Runs `arguments` (arguments[0] is looked up in PATH) and waits for it.
 // SIGINT/SIGQUIT are ignored by the caller while waiting and reset to their

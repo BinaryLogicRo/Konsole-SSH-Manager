@@ -12,6 +12,8 @@
 
 #include <unistd.h>
 
+Q_DECLARE_METATYPE(SshOption)
+
 namespace
 {
 // Reads everything currently in a pipe after the writer closed it.
@@ -104,6 +106,52 @@ private Q_SLOTS:
         QVERIFY(SshSession::failureMessage(QStringLiteral("prod-db"), result).contains(QLatin1String("255")));
         result.exitCode = 3;
         QVERIFY(SshSession::failureMessage(QStringLiteral("prod-db"), result).contains(QLatin1String("3")));
+    }
+
+    void commandLine_data()
+    {
+        QTest::addColumn<QString>("alias");
+        QTest::addColumn<QList<SshOption>>("options");
+        QTest::addColumn<QString>("expected");
+        const auto option = [](const char *keyword, const char *value) {
+            return SshOption{QString::fromLatin1(keyword), QString::fromLatin1(value)};
+        };
+        QTest::newRow("alias only") << QStringLiteral("prod-db") << QList<SshOption>{} << QStringLiteral("ssh prod-db");
+        QTest::newRow("common settings") << QStringLiteral("prod-db")
+                                         << QList<SshOption>{option("HostName", "10.0.0.12"),
+                                                             option("User", "admin"),
+                                                             option("Port", "2222"),
+                                                             option("IdentityFile", "~/.ssh/id_ed25519"),
+                                                             option("ProxyJump", "bastion")}
+                                         << QStringLiteral("ssh -i ~/.ssh/id_ed25519 -p 2222 -J bastion admin@10.0.0.12");
+        QTest::newRow("other options in file order")
+            << QStringLiteral("web") << QList<SshOption>{option("ServerAliveInterval", "60"), option("LocalForward", "8080 localhost:80 # web ui")}
+            << QStringLiteral("ssh -o ServerAliveInterval=60 -o 'LocalForward=8080 localhost:80' web");
+        QTest::newRow("first value wins") << QStringLiteral("web")
+                                          << QList<SshOption>{option("port", "2200"), option("Port", "2222"), option("User", "a"), option("User", "b")}
+                                          << QStringLiteral("ssh -p 2200 a@web");
+        QTest::newRow("default port") << QStringLiteral("web") << QList<SshOption>{option("Port", "22"), option("Port", "2200")} << QStringLiteral("ssh web");
+        QTest::newRow("every identity file")
+            << QStringLiteral("web") << QList<SshOption>{option("IdentityFile", "~/.ssh/a"), option("IdentityFile", "\"~/my keys/b\"")}
+            << QStringLiteral("ssh -i ~/.ssh/a -i '~/my keys/b' web");
+        QTest::newRow("proxy jump with proxy command")
+            << QStringLiteral("web") << QList<SshOption>{option("ProxyCommand", "nc %h %p"), option("ProxyJump", "bastion")}
+            << QStringLiteral("ssh -o 'ProxyCommand=nc %h %p' -o ProxyJump=bastion web");
+        QTest::newRow("hostname tokens") << QStringLiteral("db1") << QList<SshOption>{option("HostName", "%h.example.com")}
+                                         << QStringLiteral("ssh db1.example.com");
+        QTest::newRow("shell characters") << QStringLiteral("a;b") << QList<SshOption>{option("ProxyCommand", "nc -X 5 -x 'proxy:1080' %h %p")}
+                                          << QStringLiteral("ssh -o 'ProxyCommand=nc -X 5 -x '\\''proxy:1080'\\'' %h %p' 'a;b'");
+    }
+
+    void commandLine()
+    {
+        QFETCH(QString, alias);
+        QFETCH(QList<SshOption>, options);
+        QFETCH(QString, expected);
+        SshHost host;
+        host.patterns = QStringList{alias};
+        host.options = options;
+        QCOMPARE(SshSession::commandLine(host), expected);
     }
 
     void runWaitsForEnterOnFailure()

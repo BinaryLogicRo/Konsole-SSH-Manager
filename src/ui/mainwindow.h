@@ -38,6 +38,7 @@ private:
 
     void connectToHost(const SshHost &host);
     void showEffectiveSettings();
+    void copyCommandLine();
 
     void setSidebarOnRight(bool onRight);
     void closeTab(int index);
@@ -70,6 +71,7 @@ private:
     QAction *m_deleteAction = nullptr;
     QAction *m_importAction = nullptr;
     QAction *m_effectiveAction = nullptr;
+    QAction *m_copyCommandAction = nullptr;
     QAction *m_sidebarRightAction = nullptr;
     QAction *m_agentPanelAction = nullptr;
     QAction *m_activeTabCloseButtonAction = nullptr;

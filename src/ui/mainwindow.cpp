@@ -12,6 +12,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QClipboard>
 #include <QCloseEvent>
 #include <QFile>
 #include <QHBoxLayout>
@@ -193,6 +194,8 @@ void MainWindow::setupActions()
     m_importAction = make(QStringLiteral("document-import"), i18nc("@action", "&Import to Managed File…"), &HostOperations::importHost);
     m_effectiveAction = new QAction(QIcon::fromTheme(QStringLiteral("dialog-information")), i18nc("@action", "Show Effective &Settings"), this);
     connect(m_effectiveAction, &QAction::triggered, this, &MainWindow::showEffectiveSettings);
+    m_copyCommandAction = new QAction(QIcon::fromTheme(QStringLiteral("edit-copy")), i18nc("@action", "Copy CLI &Command"), this);
+    connect(m_copyCommandAction, &QAction::triggered, this, &MainWindow::copyCommandLine);
 
     // Editing shortcuts only apply while the sidebar has focus, never in a terminal.
     m_editAction->setShortcut(QKeySequence(Qt::Key_F2));
@@ -261,7 +264,7 @@ void MainWindow::setupMenusAndToolBar()
     fileMenu->addAction(m_quitAction);
 
     QMenu *hostMenu = menuBar()->addMenu(i18nc("@title:menu", "&Host"));
-    for (QAction *action : {m_connectAction, m_editAction, m_duplicateAction, m_deleteAction, m_importAction, m_effectiveAction}) {
+    for (QAction *action : {m_connectAction, m_editAction, m_duplicateAction, m_deleteAction, m_importAction, m_effectiveAction, m_copyCommandAction}) {
         hostMenu->addAction(action);
     }
 
@@ -289,6 +292,7 @@ void MainWindow::updateActions()
     m_deleteAction->setEnabled(editable);
     m_importAction->setEnabled(connectable && host->readOnly);
     m_effectiveAction->setEnabled(connectable);
+    m_copyCommandAction->setEnabled(connectable && SshValidation::isValidAlias(host->alias()));
 }
 
 void MainWindow::onHostsChanged()
@@ -310,7 +314,7 @@ void MainWindow::onHostsChanged()
 void MainWindow::showContextMenu(const QPoint &globalPos)
 {
     QMenu menu(this);
-    for (QAction *action : {m_connectAction, m_editAction, m_duplicateAction, m_deleteAction, m_importAction, m_effectiveAction}) {
+    for (QAction *action : {m_connectAction, m_editAction, m_duplicateAction, m_deleteAction, m_importAction, m_effectiveAction, m_copyCommandAction}) {
         if (action->isEnabled()) {
             menu.addAction(action);
         }
@@ -365,6 +369,15 @@ void MainWindow::showEffectiveSettings()
     auto *dialog = new EffectiveSettingsDialog(current->alias(), this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
+}
+
+void MainWindow::copyCommandLine()
+{
+    const std::optional<SshHost> current = m_sidebar->currentHost();
+    if (!current || !current->isConnectable() || !SshValidation::isValidAlias(current->alias())) {
+        return;
+    }
+    QApplication::clipboard()->setText(SshSession::commandLine(*current));
 }
 
 void MainWindow::setSidebarOnRight(bool onRight)
