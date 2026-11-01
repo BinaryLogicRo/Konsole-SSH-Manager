@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QPalette>
 #include <QSettings>
+#include <QWidget>
 
 #include <KColorSchemeManager>
 
@@ -39,6 +40,23 @@ bool AppTheme::setDarkMode(bool dark, QSettings &settings)
     }
     settings.setValue(QStringLiteral("appearance/darkMode"), dark);
     return true;
+}
+
+void AppTheme::applySidebarPalette(QWidget *sidebar, bool dark)
+{
+    if (!dark) {
+        sidebar->setPalette(QPalette());
+        sidebar->setAutoFillBackground(false);
+        return;
+    }
+
+    QPalette palette = QApplication::palette();
+    const QColor surface = palette.color(QPalette::Window).lighter(115);
+    palette.setColor(QPalette::Window, surface);
+    palette.setColor(QPalette::Base, surface.lighter(108));
+    palette.setColor(QPalette::AlternateBase, surface.lighter(104));
+    sidebar->setPalette(palette);
+    sidebar->setAutoFillBackground(true);
 }
 
 bool AppTheme::apply(bool dark)

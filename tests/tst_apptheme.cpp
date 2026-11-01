@@ -5,6 +5,8 @@
 #include <QSettings>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QTreeView>
+#include <QTreeWidget>
 #include <QWidget>
 
 class TestAppTheme : public QObject
@@ -13,6 +15,7 @@ class TestAppTheme : public QObject
 
 private Q_SLOTS:
     void switchesLiveAndRestoresSavedMode();
+    void lightensSidebarInDarkMode();
 };
 
 void TestAppTheme::switchesLiveAndRestoresSavedMode()
@@ -52,6 +55,32 @@ void TestAppTheme::switchesLiveAndRestoresSavedMode()
     AppTheme restartedTheme;
     QCOMPARE(restartedTheme.restore(reopened), true);
     QVERIFY(QApplication::palette().color(QPalette::Window).lightness() < QApplication::palette().color(QPalette::WindowText).lightness());
+    QApplication::setPalette(systemPalette);
+}
+
+void TestAppTheme::lightensSidebarInDarkMode()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QSettings settings(dir.filePath(QStringLiteral("settings.ini")), QSettings::IniFormat);
+    const QPalette systemPalette = QApplication::palette();
+    AppTheme theme;
+    QVERIFY(theme.setDarkMode(true, settings));
+
+    QWidget sidebar;
+    QTreeView hosts(&sidebar);
+    QTreeWidget agentKeys(&sidebar);
+    const QPalette darkPalette = QApplication::palette();
+    AppTheme::applySidebarPalette(&sidebar, true);
+    QVERIFY(sidebar.palette().color(QPalette::Window).lightness() > darkPalette.color(QPalette::Window).lightness());
+    QVERIFY(hosts.viewport()->palette().color(QPalette::Base).lightness() > darkPalette.color(QPalette::Base).lightness());
+    QVERIFY(agentKeys.viewport()->palette().color(QPalette::Base).lightness() > darkPalette.color(QPalette::Base).lightness());
+
+    QVERIFY(theme.setDarkMode(false, settings));
+    AppTheme::applySidebarPalette(&sidebar, false);
+    QCOMPARE(sidebar.palette().color(QPalette::Window), QApplication::palette().color(QPalette::Window));
+    QCOMPARE(hosts.viewport()->palette().color(QPalette::Base), QApplication::palette().color(QPalette::Base));
+    QCOMPARE(agentKeys.viewport()->palette().color(QPalette::Base), QApplication::palette().color(QPalette::Base));
     QApplication::setPalette(systemPalette);
 }
 

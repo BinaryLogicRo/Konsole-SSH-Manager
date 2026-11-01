@@ -417,6 +417,17 @@ void MainWindow::setDarkMode(bool dark)
         QSignalBlocker blocker(m_darkModeAction);
         m_darkModeAction->setChecked(!dark);
     }
+    updateThemeControls();
+}
+
+void MainWindow::updateThemeControls()
+{
+    const bool dark = m_darkModeAction->isChecked();
+    m_darkModeAction->setIcon(QIcon::fromTheme(dark ? QStringLiteral("weather-clear") : QStringLiteral("weather-clear-night")));
+    m_darkModeAction->setToolTip(dark ? i18nc("@info:tooltip", "Switch to light mode") : i18nc("@info:tooltip", "Switch to dark mode"));
+    for (QWidget *panel : {static_cast<QWidget *>(m_sidebarSplitter), static_cast<QWidget *>(m_sidebar), static_cast<QWidget *>(m_agentPanel)}) {
+        AppTheme::applySidebarPalette(panel, dark);
+    }
 }
 
 void MainWindow::closeTab(int index)
@@ -512,6 +523,7 @@ void MainWindow::restoreSettings()
         QSignalBlocker blocker(m_darkModeAction);
         m_darkModeAction->setChecked(m_theme.restore(settings));
     }
+    updateThemeControls();
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
     m_splitter->setSizes({260, 900});

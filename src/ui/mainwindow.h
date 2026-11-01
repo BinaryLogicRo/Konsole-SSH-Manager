@@ -43,6 +43,7 @@ private:
 
     void setSidebarOnRight(bool onRight);
     void setDarkMode(bool dark);
+    void updateThemeControls();
     void closeTab(int index);
     void removeTerminalTab(int index);
     void onCurrentTabChanged(int index);
