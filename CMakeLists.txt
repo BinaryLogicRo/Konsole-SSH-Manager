@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(konsole-ssh-manager VERSION 0.4.0 LANGUAGES CXX)
+project(konsole-ssh-manager VERSION 0.5.0 LANGUAGES CXX)
 
 # Qt 5 pairs with KF5 (Debian 12), Qt 6 pairs with KF6 (Debian 13).
 # When QT_MAJOR_VERSION is not given, prefer Qt 6 if Qt 6 and KF6 are both available.
@@ -23,9 +23,11 @@ set(KF_MAJOR_VERSION ${QT_MAJOR_VERSION})
 if(QT_MAJOR_VERSION EQUAL 6)
     set(QT_MIN_VERSION "6.4.0")
     set(KF_MIN_VERSION "6.0.0")
+    set(KF_COLOR_SCHEME_COMPONENT ColorScheme)
 else()
     set(QT_MIN_VERSION "5.15.2")
     set(KF_MIN_VERSION "5.103.0")
+    set(KF_COLOR_SCHEME_COMPONENT ConfigWidgets)
 endif()
 
 find_package(ECM 5.103.0 REQUIRED NO_MODULE)
@@ -43,7 +45,7 @@ include(ECMAddTests)
 include(FeatureSummary)
 
 find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Core Network Widgets Test)
-find_package(KF${KF_MAJOR_VERSION} ${KF_MIN_VERSION} REQUIRED COMPONENTS Parts CoreAddons I18n WidgetsAddons)
+find_package(KF${KF_MAJOR_VERSION} ${KF_MIN_VERSION} REQUIRED COMPONENTS Parts CoreAddons I18n WidgetsAddons ${KF_COLOR_SCHEME_COMPONENT})
 
 add_definitions(
     -DTRANSLATION_DOMAIN=\"konsole-ssh-manager\"

@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
+#include <QSignalBlocker>
 #include <QSizePolicy>
 #include <QSplitter>
 #include <QStandardPaths>
@@ -221,6 +222,7 @@ void MainWindow::setupActions()
 
     m_darkModeAction = new QAction(QIcon::fromTheme(QStringLiteral("weather-clear-night")), i18nc("@action", "&Dark Mode"), this);
     m_darkModeAction->setCheckable(true);
+    connect(m_darkModeAction, &QAction::toggled, this, &MainWindow::setDarkMode);
 
     m_nextTabAction = new QAction(QIcon::fromTheme(QStringLiteral("go-next")), i18nc("@action", "&Next Tab"), this);
     m_nextTabAction->setShortcut(QKeySequence(QStringLiteral("Ctrl+PgDown")));
@@ -408,6 +410,15 @@ void MainWindow::setSidebarOnRight(bool onRight)
     m_splitter->setSizes(sizes);
 }
 
+void MainWindow::setDarkMode(bool dark)
+{
+    QSettings settings = appSettings();
+    if (!m_theme.setDarkMode(dark, settings)) {
+        QSignalBlocker blocker(m_darkModeAction);
+        m_darkModeAction->setChecked(!dark);
+    }
+}
+
 void MainWindow::closeTab(int index)
 {
     auto *tab = qobject_cast<TerminalTab *>(m_tabs->widget(index));
@@ -497,6 +508,10 @@ void MainWindow::showAbout()
 void MainWindow::restoreSettings()
 {
     QSettings settings = appSettings();
+    {
+        QSignalBlocker blocker(m_darkModeAction);
+        m_darkModeAction->setChecked(m_theme.restore(settings));
+    }
     m_splitter->setStretchFactor(0, 0);
     m_splitter->setStretchFactor(1, 1);
     m_splitter->setSizes({260, 900});

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sshconfig/hoststore.h"
+#include "ui/apptheme.h"
 
 #include <QList>
 #include <QMainWindow>
@@ -41,6 +42,7 @@ private:
     void copyCommandLine();
 
     void setSidebarOnRight(bool onRight);
+    void setDarkMode(bool dark);
     void closeTab(int index);
     void removeTerminalTab(int index);
     void onCurrentTabChanged(int index);
@@ -51,6 +53,7 @@ private:
     void restoreSettings();
     void saveSettings() const;
 
+    AppTheme m_theme;
     HostStore *m_store = nullptr;
     HostSidebar *m_sidebar = nullptr;
     QTabWidget *m_tabs = nullptr;

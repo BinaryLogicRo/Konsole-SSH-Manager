@@ -27,6 +27,7 @@ target_link_libraries(konsole-ssh-session PRIVATE konsolesshmanager_core)
 
 # The app's UI (everything under ui/), shared by the app and the optional README screenshot tool (tools/screenshot).
 add_library(konsolesshmanager_ui STATIC
+    ui/apptheme.cpp
     ui/mainwindow.cpp
     ui/hosts/hostsidebar.cpp
     ui/hosts/hosttreemodel.cpp
@@ -44,6 +45,7 @@ target_link_libraries(konsolesshmanager_ui PUBLIC
     KF${KF_MAJOR_VERSION}::CoreAddons
     KF${KF_MAJOR_VERSION}::I18n
     KF${KF_MAJOR_VERSION}::WidgetsAddons
+    KF${KF_MAJOR_VERSION}::${KF_COLOR_SCHEME_COMPONENT}
 )
 
 add_executable(konsole-ssh-manager

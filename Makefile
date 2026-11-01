@@ -35,9 +35,9 @@ INSTALLED   := $(PREFIX)/bin/konsole-ssh-manager $(PREFIX)/bin/konsole-ssh-sessi
 MENU_CACHE_TOOL := $(firstword $(foreach tool,kbuildsycoca6 kbuildsycoca5,$(shell command -v $(tool) 2>/dev/null)))
 
 DEBIAN_MAJOR := $(shell cut -d. -f1 /etc/debian_version 2>/dev/null)
-DEPS_COMMON  := build-essential cmake extra-cmake-modules konsole openssh-client clang-format
-DEPS_12      := qtbase5-dev libkf5parts-dev libkf5coreaddons-dev libkf5i18n-dev libkf5widgetsaddons-dev
-DEPS_13      := qt6-base-dev libkf6parts-dev libkf6coreaddons-dev libkf6i18n-dev libkf6widgetsaddons-dev
+DEPS_COMMON  := build-essential cmake extra-cmake-modules konsole openssh-client kde-style-breeze clang-format
+DEPS_12      := qtbase5-dev libkf5parts-dev libkf5coreaddons-dev libkf5i18n-dev libkf5widgetsaddons-dev libkf5configwidgets-dev
+DEPS_13      := qt6-base-dev libkf6parts-dev libkf6coreaddons-dev libkf6i18n-dev libkf6widgetsaddons-dev libkf6colorscheme-dev
 
 .DEFAULT_GOAL := build
 .PHONY: help deps configure build test run install uninstall refresh-menu screenshot social-preview format clean distclean rebuild

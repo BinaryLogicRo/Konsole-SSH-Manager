@@ -16,7 +16,7 @@ Linux only. No Windows or macOS code paths.
 - C++20, limited to what GCC 12 (Debian 12) supports. In particular, **`std::format` is not available**; use `QString::arg()` instead.
 - CMake ≥ 3.24, Extra CMake Modules (ECM)
 - Qt 5.15 or Qt 6 (Widgets, Test)
-- KDE Frameworks 5 or 6: KParts, KCoreAddons, KI18n, KWidgetsAddons
+- KDE Frameworks 5 or 6: KParts, KCoreAddons, KI18n, KWidgetsAddons, and KConfigWidgets (KF5) or KColorScheme (KF6)
 - Runtime dependency: `konsole` (provides the `konsolepart` plugin)
 - Any new dependency must come from a trustworthy, popular source; see [Security](10-security.md).
 

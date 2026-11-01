@@ -9,6 +9,9 @@ ecm_add_tests(
     LINK_LIBRARIES konsolesshmanager_core Qt${QT_MAJOR_VERSION}::Test
 )
 
+ecm_add_test(tst_apptheme.cpp LINK_LIBRARIES konsolesshmanager_ui Qt${QT_MAJOR_VERSION}::Test)
+set_tests_properties(tst_apptheme PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 target_compile_definitions(tst_sshconfigparser PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 # End-to-end tests of the helper binary, run against a fake ssh placed first in PATH.
 target_compile_definitions(tst_sshsession PRIVATE SSH_SESSION_HELPER="$<TARGET_FILE:konsole-ssh-session>")
