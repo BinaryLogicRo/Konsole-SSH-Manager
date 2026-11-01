@@ -104,18 +104,12 @@ AgentPanel::AgentPanel(QWidget *parent)
     columns->setSectionResizeMode(TypeColumn, QHeaderView::ResizeToContents);
     columns->setSectionResizeMode(StateColumn, QHeaderView::ResizeToContents);
 
-    auto *buttons = new QHBoxLayout;
-    buttons->addWidget(toolButton(m_loadAction, this, Qt::ToolButtonTextBesideIcon));
-    buttons->addWidget(toolButton(m_removeAction, this, Qt::ToolButtonTextBesideIcon));
-    buttons->addStretch(1);
-
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addLayout(header);
     layout->addLayout(statusRow);
     layout->addWidget(m_errorBar);
     layout->addWidget(m_view, 1);
-    layout->addLayout(buttons);
 
     connect(m_loadAction, &QAction::triggered, this, &AgentPanel::loadCurrent);
     connect(m_removeAction, &QAction::triggered, this, &AgentPanel::removeCurrent);
