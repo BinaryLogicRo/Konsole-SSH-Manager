@@ -22,12 +22,14 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
+#include <QSizePolicy>
 #include <QSplitter>
 #include <QStandardPaths>
 #include <QStyle>
 #include <QTabBar>
 #include <QTabWidget>
 #include <QToolBar>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 #include <KAboutData>
@@ -217,6 +219,9 @@ void MainWindow::setupActions()
     m_activeTabCloseButtonAction->setCheckable(true);
     connect(m_activeTabCloseButtonAction, &QAction::toggled, this, &MainWindow::updateTabCloseButtons);
 
+    m_darkModeAction = new QAction(QIcon::fromTheme(QStringLiteral("weather-clear-night")), i18nc("@action", "&Dark Mode"), this);
+    m_darkModeAction->setCheckable(true);
+
     m_nextTabAction = new QAction(QIcon::fromTheme(QStringLiteral("go-next")), i18nc("@action", "&Next Tab"), this);
     m_nextTabAction->setShortcut(QKeySequence(QStringLiteral("Ctrl+PgDown")));
     connect(m_nextTabAction, &QAction::triggered, this, [this] {
@@ -254,6 +259,14 @@ void MainWindow::setupMenusAndToolBar()
     for (QAction *action : {m_connectAction, m_addAction, m_editAction, m_deleteAction}) {
         toolBar->addAction(action);
     }
+    auto *spacer = new QWidget(toolBar);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    toolBar->addWidget(spacer);
+    auto *darkModeButton = new QToolButton(toolBar);
+    darkModeButton->setDefaultAction(m_darkModeAction);
+    darkModeButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    darkModeButton->setAutoRaise(true);
+    toolBar->addWidget(darkModeButton);
     // Stays in sync with the toolbar, so a hidden toolbar can always be brought back.
     QAction *toolBarAction = toolBar->toggleViewAction();
     toolBarAction->setText(i18nc("@action", "Show Main &Toolbar"));
@@ -273,6 +286,7 @@ void MainWindow::setupMenusAndToolBar()
     viewMenu->addAction(m_sidebarRightAction);
     viewMenu->addAction(m_agentPanelAction);
     viewMenu->addAction(m_activeTabCloseButtonAction);
+    viewMenu->addAction(m_darkModeAction);
     viewMenu->addSeparator();
     viewMenu->addAction(m_nextTabAction);
     viewMenu->addAction(m_previousTabAction);

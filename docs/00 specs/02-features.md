@@ -59,6 +59,7 @@ What the app offers its users. Keep this list current: update it whenever a user
 ### Window and desktop
 
 - Main toolbar that can be hidden and shown again.
+- A Dark Mode control in the main toolbar and View menu.
 - The window's close button minimizes the window; quitting is done from the File menu.
 - Remembers the window's size, layout, and view options.
 - Integrates with Plasma: application menu entry, app icon, and the desktop's look.

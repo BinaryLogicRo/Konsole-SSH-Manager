@@ -75,6 +75,7 @@ private:
     QAction *m_sidebarRightAction = nullptr;
     QAction *m_agentPanelAction = nullptr;
     QAction *m_activeTabCloseButtonAction = nullptr;
+    QAction *m_darkModeAction = nullptr;
     QAction *m_nextTabAction = nullptr;
     QAction *m_previousTabAction = nullptr;
     QAction *m_quitAction = nullptr;
