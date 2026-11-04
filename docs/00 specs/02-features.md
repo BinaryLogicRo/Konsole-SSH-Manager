@@ -49,6 +49,7 @@ What the app offers its users. Keep this list current: update it whenever a user
 - A panel below the host tree shows whether the SSH agent is available, and lists the keys it holds.
 - Lists the keys used by the SSH configuration first, then keys the user adds by choosing a file.
 - Loads keys into the agent and removes them, showing any error inline.
+- Copies a key file's full path to the clipboard.
 - Asks for a key's passphrase in its own prompt, which stays in front of the main window and never offers to remember it.
 
 ### Security

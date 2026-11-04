@@ -47,6 +47,7 @@ private:
     void loadCurrent();
     void removeCurrent();
     void forgetCurrent();
+    void copyCurrentPath();
     void chooseKeyFile();
     void loadKey(const QString &path, const QString &name);
     void showContextMenu(const QPoint &pos);
@@ -62,6 +63,7 @@ private:
     QAction *m_loadAction = nullptr;
     QAction *m_removeAction = nullptr;
     QAction *m_forgetAction = nullptr;
+    QAction *m_copyPathAction = nullptr;
     QAction *m_addFileAction = nullptr;
     QAction *m_refreshAction = nullptr;
 

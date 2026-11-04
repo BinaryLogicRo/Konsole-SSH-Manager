@@ -20,6 +20,7 @@ The app's sessions authenticate with SSH keys through the SSH agent (see [Securi
 
 - **Load** a listed key into the agent, or **Remove** a loaded key from it. Any loaded key can be removed, including keys loaded by another program.
 - **Add a key file:** choose a private key with the standard file chooser. The key is added to the list and loaded. Added keys are remembered (only their paths) and can be removed from the list again, which doesn't unload them. Keys from the SSH configuration follow the configuration and can't be removed from the list.
+- **Copy a key file's path:** copy the full path of a listed key file to the clipboard from its context menu.
 - **Refresh:** the panel refreshes the status and keys when asked, after each action, and when the SSH configuration changes.
 - **Visibility:** the panel can be shown or hidden from the View menu, and its size relative to the host tree can be changed. Both are remembered.
 

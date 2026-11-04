@@ -2,6 +2,8 @@
 #include "agentpaneltext.h"
 
 #include <QAction>
+#include <QApplication>
+#include <QClipboard>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileDialog>
@@ -61,6 +63,8 @@ AgentPanel::AgentPanel(QWidget *parent)
     m_removeAction = new QAction(QIcon::fromTheme(QStringLiteral("list-remove")), i18nc("@action", "&Remove"), this);
     m_removeAction->setToolTip(i18nc("@info:tooltip", "Remove the selected key from the SSH agent"));
     m_forgetAction = new QAction(QIcon::fromTheme(QStringLiteral("edit-clear")), i18nc("@action", "Remove from &List"), this);
+    m_copyPathAction = new QAction(QIcon::fromTheme(QStringLiteral("edit-copy")), i18nc("@action", "Copy &Path"), this);
+    m_copyPathAction->setToolTip(i18nc("@info:tooltip", "Copy the key file's full path to the clipboard"));
     m_addFileAction = new QAction(QIcon::fromTheme(QStringLiteral("document-open")), i18nc("@action", "&Add Key File…"), this);
     m_refreshAction = new QAction(QIcon::fromTheme(QStringLiteral("view-refresh")), i18nc("@action", "Re&fresh"), this);
 
@@ -114,6 +118,7 @@ AgentPanel::AgentPanel(QWidget *parent)
     connect(m_loadAction, &QAction::triggered, this, &AgentPanel::loadCurrent);
     connect(m_removeAction, &QAction::triggered, this, &AgentPanel::removeCurrent);
     connect(m_forgetAction, &QAction::triggered, this, &AgentPanel::forgetCurrent);
+    connect(m_copyPathAction, &QAction::triggered, this, &AgentPanel::copyCurrentPath);
     connect(m_addFileAction, &QAction::triggered, this, &AgentPanel::chooseKeyFile);
     connect(m_refreshAction, &QAction::triggered, this, &AgentPanel::refresh);
     connect(dismissButton, &QToolButton::clicked, m_errorBar, &QWidget::hide);
@@ -298,6 +303,8 @@ void AgentPanel::updateActions()
     m_loadAction->setEnabled(idle && agentAvailable && loadable);
     m_removeAction->setEnabled(idle && agentAvailable && entry && !entry->agentKeys.isEmpty());
     m_forgetAction->setEnabled(entry && entry->source == SshKeyEntry::Source::Added);
+    // An unresolved IdentityFile has no absolute path to copy.
+    m_copyPathAction->setEnabled(entry && QDir::isAbsolutePath(entry->path));
     m_addFileAction->setEnabled(idle);
 }
 
@@ -372,6 +379,14 @@ void AgentPanel::forgetCurrent()
     }
 }
 
+void AgentPanel::copyCurrentPath()
+{
+    const SshKeyEntry *entry = currentEntry();
+    if (entry && QDir::isAbsolutePath(entry->path)) {
+        QApplication::clipboard()->setText(entry->path);
+    }
+}
+
 void AgentPanel::chooseKeyFile()
 {
     const QString sshDir = QDir::homePath() + QStringLiteral("/.ssh");
@@ -411,7 +426,7 @@ void AgentPanel::showContextMenu(const QPoint &pos)
         m_view->setCurrentItem(item);
     }
     QMenu menu(this);
-    for (QAction *action : {m_loadAction, m_removeAction, m_forgetAction}) {
+    for (QAction *action : {m_loadAction, m_removeAction, m_forgetAction, m_copyPathAction}) {
         if (action->isEnabled()) {
             menu.addAction(action);
         }
