@@ -2,6 +2,14 @@
 
 Guidance for AI coding agents working on **konsole-ssh-manager**.
 
+## Mandatory plain English
+
+**Always write in plain, direct English.** This rule applies to replies, progress updates, questions, and any text you write for people to read.
+
+- Start with the answer. Use short sentences. Name who or what does each action, and say what happens in the order it happens.
+- **Never use compressed, indirect wording that makes the reader guess who acts, what happens, or when it happens.** Never chain phrases like “keeping … means waiting … before deciding” to explain how something works. Split them into sentences with a named actor and a direct verb.
+- Before you send or save text, reread it. Rewrite any sentence that breaks this rule.
+
 ## Filesystem safety
 
 AI agents must **not** run any command that can alter operating-system files. They may modify only files within this project and the SSH configuration file managed by the app.
