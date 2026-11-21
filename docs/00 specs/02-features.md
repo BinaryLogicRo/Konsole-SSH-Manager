@@ -62,6 +62,7 @@ What the app offers its users. Keep this list current: update it whenever a user
 - Main toolbar that can be hidden and shown again.
 - Switches the app's interface between light and dark while running, using controls in the main toolbar and View menu, and remembers the choice.
 - The window's close button minimizes the window; quitting is done from the File menu.
+- Closes when Plasma ends the desktop session.
 - Remembers the window's size, layout, and view options.
 - Integrates with Plasma: application menu entry, app icon, and the desktop's look.
 - Installs for the current user only, without root access.

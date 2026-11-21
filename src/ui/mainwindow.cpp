@@ -14,6 +14,9 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QCloseEvent>
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusReply>
 #include <QFile>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -44,6 +47,20 @@ namespace
 QSettings appSettings()
 {
     return QSettings(QStringLiteral("konsole-ssh-manager"), QStringLiteral("konsole-ssh-manager"));
+}
+
+bool plasmaSessionIsEnding()
+{
+    // KWin sends a regular Wayland close request when Plasma ends the session.
+    // Ask the session manager because that request carries no reason.
+    auto request = QDBusMessage::createMethodCall(QStringLiteral("org.kde.ksmserver"),
+                                                  QStringLiteral("/KSMServer"),
+                                                  QStringLiteral("org.kde.KSMServerInterface"),
+                                                  QStringLiteral("isShuttingDown"));
+    request.setAutoStartService(false);
+    constexpr int timeoutMs = 50;
+    const QDBusReply<bool> reply = QDBusConnection::sessionBus().call(request, QDBus::Block, timeoutMs);
+    return reply.isValid() && reply.value();
 }
 }
 
@@ -138,14 +155,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    // The window's close button only minimizes it. File > Quit quits, and so does
-    // the end of the desktop session, which an ignored close would cancel.
-    if (!m_quitRequested && !qApp->isSavingSession()) {
+    if (!m_quitRequested && !qApp->isSavingSession() && !plasmaSessionIsEnding()) {
         event->ignore();
         showMinimized();
         return;
     }
-    if (m_tabs->count() > 0) {
+    if (m_quitRequested && m_tabs->count() > 0) {
         const auto answer = QMessageBox::question(
             this,
             i18nc("@title:window", "Quit"),

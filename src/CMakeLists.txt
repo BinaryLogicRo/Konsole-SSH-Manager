@@ -47,6 +47,7 @@ target_link_libraries(konsolesshmanager_ui PUBLIC
     KF${KF_MAJOR_VERSION}::WidgetsAddons
     KF${KF_MAJOR_VERSION}::${KF_COLOR_SCHEME_COMPONENT}
 )
+target_link_libraries(konsolesshmanager_ui PRIVATE Qt${QT_MAJOR_VERSION}::DBus)
 
 add_executable(konsole-ssh-manager
     main.cpp
