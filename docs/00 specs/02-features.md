@@ -37,7 +37,7 @@ What the app offers its users. Keep this list current: update it whenever a user
 - Allows several sessions to the same host, numbered in the tab titles.
 - Copies the full ssh command for a host, with the settings of its own entry, to the clipboard, ready to paste into a terminal.
 - Shows the host's color in its tab and its address in the tab's tooltip.
-- Tabs can be reordered and switched from the keyboard; the close button can be limited to the active tab.
+- Tabs can be reordered and switched from the keyboard; the close button can be limited to the active tab, from the Settings menu.
 - Middle-clicking a tab closes it, like its close button.
 - Closing the active tab switches to the tab used before it.
 - Closes the tab after a normal logout.
@@ -62,8 +62,9 @@ What the app offers its users. Keep this list current: update it whenever a user
 - Main toolbar that can be hidden and shown again.
 - Switches the app's interface between light and dark while running, using controls in the main toolbar and View menu, and remembers the choice.
 - The window's close button minimizes the window; quitting is done from the File menu.
+- Single instance mode: starting the app again brings the running app's window to the front instead of opening a second window. It can be turned on or off from the Settings menu.
 - Closes when Plasma ends the desktop session.
-- Remembers the window's size, layout, and view options.
+- Remembers the window's size, layout, view options, and settings.
 - Integrates with Plasma: application menu entry, app icon, and the desktop's look.
 - Installs for the current user only, without root access.
 

@@ -1,3 +1,4 @@
+#include "singleinstance.h"
 #include "sshagent/askpass.h"
 #include "ui/mainwindow.h"
 
@@ -46,10 +47,18 @@ int main(int argc, char **argv)
     parser.process(app);
     about.processCommandLine(&parser);
 
+    // In single instance mode, a new launch shows the running app's window and exits.
+    // The desktop's activation token lets the running app take the focus.
+    SingleInstance instance(QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation));
+    if (instance.start(MainWindow::isSingleInstanceEnabled(), qEnvironmentVariable("XDG_ACTIVATION_TOKEN")) == SingleInstance::StartResult::HandedOver) {
+        return 0;
+    }
+
     // Backups live outside ~/.ssh/config.d so `Include config.d/*` never reads them.
     const QString backupDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/backups");
 
     MainWindow window(SshPaths::forHome(QDir::homePath(), backupDir));
+    QObject::connect(&instance, &SingleInstance::activationRequested, &window, &MainWindow::bringToFront);
     window.show();
     return app.exec();
 }

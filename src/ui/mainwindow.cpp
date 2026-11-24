@@ -18,6 +18,7 @@
 #include <QDBusMessage>
 #include <QDBusReply>
 #include <QFile>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
@@ -48,6 +49,8 @@ QSettings appSettings()
 {
     return QSettings(QStringLiteral("konsole-ssh-manager"), QStringLiteral("konsole-ssh-manager"));
 }
+
+const QString SingleInstanceKey = QStringLiteral("general/singleInstance");
 
 bool plasmaSessionIsEnding()
 {
@@ -144,6 +147,30 @@ MainWindow::MainWindow(const SshPaths &paths, QWidget *parent)
     onHostsChanged();
 }
 
+bool MainWindow::isSingleInstanceEnabled()
+{
+    return appSettings().value(SingleInstanceKey, true).toBool();
+}
+
+void MainWindow::bringToFront(const QString &activationToken)
+{
+    // On Wayland, the compositor raises and restores a window only when it shows
+    // the token that the compositor gave the new launch. Qt reads the token from
+    // this variable when the window asks for the focus.
+    const bool useToken = !activationToken.isEmpty() && QGuiApplication::platformName().startsWith(QLatin1String("wayland"));
+    if (useToken) {
+        qputenv("XDG_ACTIVATION_TOKEN", activationToken.toLatin1());
+    }
+    setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+    show();
+    raise();
+    activateWindow();
+    // Programs that the app starts later must not inherit a used token.
+    if (useToken) {
+        qunsetenv("XDG_ACTIVATION_TOKEN");
+    }
+}
+
 MainWindow::~MainWindow()
 {
     const QList<TerminalTab *> tabs = findChildren<TerminalTab *>();
@@ -235,6 +262,10 @@ void MainWindow::setupActions()
     m_activeTabCloseButtonAction->setCheckable(true);
     connect(m_activeTabCloseButtonAction, &QAction::toggled, this, &MainWindow::updateTabCloseButtons);
 
+    m_singleInstanceAction = new QAction(i18nc("@action", "&Single Instance Mode"), this);
+    m_singleInstanceAction->setCheckable(true);
+    connect(m_singleInstanceAction, &QAction::toggled, this, &MainWindow::setSingleInstance);
+
     m_darkModeAction = new QAction(QIcon::fromTheme(QStringLiteral("weather-clear-night")), i18nc("@action", "&Dark Mode"), this);
     m_darkModeAction->setCheckable(true);
     connect(m_darkModeAction, &QAction::toggled, this, &MainWindow::setDarkMode);
@@ -302,11 +333,14 @@ void MainWindow::setupMenusAndToolBar()
     viewMenu->addAction(toolBarAction);
     viewMenu->addAction(m_sidebarRightAction);
     viewMenu->addAction(m_agentPanelAction);
-    viewMenu->addAction(m_activeTabCloseButtonAction);
     viewMenu->addAction(m_darkModeAction);
     viewMenu->addSeparator();
     viewMenu->addAction(m_nextTabAction);
     viewMenu->addAction(m_previousTabAction);
+
+    QMenu *settingsMenu = menuBar()->addMenu(i18nc("@title:menu", "&Settings"));
+    settingsMenu->addAction(m_activeTabCloseButtonAction);
+    settingsMenu->addAction(m_singleInstanceAction);
 
     QMenu *helpMenu = menuBar()->addMenu(i18nc("@title:menu", "&Help"));
     helpMenu->addAction(m_aboutAction);
@@ -435,6 +469,12 @@ void MainWindow::setDarkMode(bool dark)
     updateThemeControls();
 }
 
+// New launches read the setting while this window is open, so it is saved at once.
+void MainWindow::setSingleInstance(bool enabled)
+{
+    appSettings().setValue(SingleInstanceKey, enabled);
+}
+
 void MainWindow::updateThemeControls()
 {
     const bool dark = m_darkModeAction->isChecked();
@@ -455,7 +495,7 @@ void MainWindow::closeTab(int index)
     }
 }
 
-// Either every tab or only the visible one shows a close button (View menu).
+// Either every tab or only the visible one shows a close button (Settings menu).
 void MainWindow::updateTabCloseButtons()
 {
     QTabBar *tabBar = m_tabs->tabBar();
@@ -545,6 +585,10 @@ void MainWindow::restoreSettings()
     m_sidebarSplitter->setSizes({460, 240});
     m_sidebarRightAction->setChecked(settings.value(QStringLiteral("sidebar/onRight"), false).toBool());
     m_activeTabCloseButtonAction->setChecked(settings.value(QStringLiteral("tabs/closeButtonOnActiveTabOnly"), false).toBool());
+    {
+        QSignalBlocker blocker(m_singleInstanceAction);
+        m_singleInstanceAction->setChecked(settings.value(SingleInstanceKey, true).toBool());
+    }
     m_agentPanelAction->setChecked(settings.value(QStringLiteral("agentPanel/visible"), true).toBool());
     m_agentPanel->setVisible(m_agentPanelAction->isChecked());
     m_agentPanel->setAddedKeys(settings.value(QStringLiteral("agentPanel/addedKeys")).toStringList());

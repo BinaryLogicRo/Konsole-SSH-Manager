@@ -7,6 +7,7 @@ src/
   main.cpp             App entry
   compat.h             Qt/KF compatibility
   logging.cpp          Logging categories
+  singleinstance.cpp   Handover from a new launch to the running app
   sshconfig/           Config parsing, storage, and writing
   sshagent/            SSH agent and key file handling
   session/             SSH helper and the app's listener for failed sessions

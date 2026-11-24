@@ -6,6 +6,7 @@ ecm_add_tests(
     tst_sshsession.cpp
     tst_sshagent.cpp
     tst_sshagentclient.cpp
+    tst_singleinstance.cpp
     LINK_LIBRARIES konsolesshmanager_core Qt${QT_MAJOR_VERSION}::Test
 )
 

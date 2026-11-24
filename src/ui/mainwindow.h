@@ -26,6 +26,11 @@ public:
     explicit MainWindow(const SshPaths &paths, QWidget *parent = nullptr);
     ~MainWindow() override;
 
+    // Whether a new launch of the app shows this window instead of opening its own (Settings menu).
+    static bool isSingleInstanceEnabled();
+    // Shows, restores, and focuses the window when a later launch hands over to it.
+    void bringToFront(const QString &activationToken);
+
 protected:
     void closeEvent(QCloseEvent *event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -43,6 +48,7 @@ private:
 
     void setSidebarOnRight(bool onRight);
     void setDarkMode(bool dark);
+    void setSingleInstance(bool enabled);
     void updateThemeControls();
     void closeTab(int index);
     void removeTerminalTab(int index);
@@ -79,6 +85,7 @@ private:
     QAction *m_sidebarRightAction = nullptr;
     QAction *m_agentPanelAction = nullptr;
     QAction *m_activeTabCloseButtonAction = nullptr;
+    QAction *m_singleInstanceAction = nullptr;
     QAction *m_darkModeAction = nullptr;
     QAction *m_nextTabAction = nullptr;
     QAction *m_previousTabAction = nullptr;

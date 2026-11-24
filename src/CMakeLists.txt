@@ -1,8 +1,10 @@
 # Display-free core: SSH config parsing, writing and loading, SSH agent and
-# key file handling, the askpass relay, the session helper logic and the app's
-# listener for failed sessions. Tests link against this.
+# key file handling, the askpass relay, the session helper logic, the app's
+# listener for failed sessions and the single instance handover. Tests link
+# against this.
 add_library(konsolesshmanager_core STATIC
     logging.cpp
+    singleinstance.cpp
     sshconfig/sshhost.cpp
     sshconfig/sshconfigdocument.cpp
     sshconfig/sshconfigparser.cpp
